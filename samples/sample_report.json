@@ -1,0 +1,176 @@
+{
+  "assessment": {
+    "summary": "Mock assessment for the ElevenLabs Forward Deployed Engineer role, based on keywords in your answers. Switch to Claude or the local model for a real assessment.",
+    "dimensions": [
+      {
+        "dimension_id": "breadth",
+        "score": 4,
+        "evidence_quote": "Mostly Claude for writing and coding, and ChatGPT for quick questions.",
+        "rationale": "Keyword match on Tool and model breadth gives 4/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "prompting",
+        "score": 3,
+        "evidence_quote": "I gave the model the transcript, told it who the audience was, and gave it an example of the format I wanted.",
+        "rationale": "Keyword match on Prompting and context gives 3/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "verification",
+        "score": 4,
+        "evidence_quote": "If it's code I run it and write a quick test.",
+        "rationale": "Keyword match on Critical evaluation gives 4/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "building",
+        "score": 3,
+        "evidence_quote": "I built a Python script that takes support tickets, calls an LLM API to classify them, and posts the result to Slack with a webhook.",
+        "rationale": "Keyword match on Building with AI APIs gives 3/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "voice_audio",
+        "score": 3,
+        "evidence_quote": "I've used speech-to-text to transcribe meetings.",
+        "rationale": "Keyword match on Voice and audio AI gives 3/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "responsible",
+        "score": 2,
+        "evidence_quote": "I check whether it's allowed by our policy, and I remove names and anything personal first.",
+        "rationale": "Keyword match on Responsible use gives 2/5 (mock scoring)."
+      },
+      {
+        "dimension_id": "customer_value",
+        "score": 4,
+        "evidence_quote": "I'd start with a discovery workshop to understand their users and pick one use case.",
+        "rationale": "Keyword match on Turning AI into value gives 4/5 (mock scoring)."
+      }
+    ],
+    "strengths": [
+      "Tool and model breadth",
+      "Critical evaluation"
+    ],
+    "gaps": [
+      "Voice and audio AI",
+      "Responsible use"
+    ],
+    "recommendations": [
+      {
+        "title": "Ship a small API integration",
+        "why": "The role is hands-on Python and API integration for customers.",
+        "first_step": "Build a Python script that calls an AI API end to end and handles errors.",
+        "dimension_id": "building",
+        "effort": "medium"
+      },
+      {
+        "title": "Build a reusable prompt template",
+        "why": "Strong prompts make customer solutions reliable and repeatable.",
+        "first_step": "Write a template with role, context, examples and output format; test it.",
+        "dimension_id": "prompting",
+        "effort": "medium"
+      },
+      {
+        "title": "Write a one-page data policy",
+        "why": "Enterprise customers expect clear answers on data handling.",
+        "first_step": "Draft what data you would and wouldn't send to an AI tool, and why.",
+        "dimension_id": "responsible",
+        "effort": "low"
+      }
+    ]
+  },
+  "role_fit": {
+    "role_id": "elevenlabs_fde",
+    "role_title": "ElevenLabs Forward Deployed Engineer",
+    "fit_percent": 89,
+    "band": "Strong fit",
+    "dimensions": [
+      {
+        "dimension_id": "building",
+        "score": 3,
+        "target": 4,
+        "weight": 3,
+        "fit": 0.75,
+        "gap": 1,
+        "priority": 3
+      },
+      {
+        "dimension_id": "prompting",
+        "score": 3,
+        "target": 4,
+        "weight": 2,
+        "fit": 0.75,
+        "gap": 1,
+        "priority": 2
+      },
+      {
+        "dimension_id": "responsible",
+        "score": 2,
+        "target": 3,
+        "weight": 1,
+        "fit": 0.6666666666666666,
+        "gap": 1,
+        "priority": 1
+      },
+      {
+        "dimension_id": "customer_value",
+        "score": 4,
+        "target": 4,
+        "weight": 3,
+        "fit": 1.0,
+        "gap": 0,
+        "priority": 0
+      },
+      {
+        "dimension_id": "verification",
+        "score": 4,
+        "target": 4,
+        "weight": 2,
+        "fit": 1.0,
+        "gap": 0,
+        "priority": 0
+      },
+      {
+        "dimension_id": "voice_audio",
+        "score": 3,
+        "target": 3,
+        "weight": 2,
+        "fit": 1.0,
+        "gap": 0,
+        "priority": 0
+      },
+      {
+        "dimension_id": "breadth",
+        "score": 4,
+        "target": 3,
+        "weight": 1,
+        "fit": 1.0,
+        "gap": 0,
+        "priority": 0
+      }
+    ],
+    "meets": [
+      "customer_value",
+      "verification",
+      "voice_audio",
+      "breadth"
+    ],
+    "gaps": [
+      "building",
+      "prompting",
+      "responsible"
+    ]
+  },
+  "overall_score": 3.29,
+  "level": "Builder",
+  "provider": "mock",
+  "model": "mock-keyword-v1",
+  "generated_at": "2026-10-15T15:24:19.278384Z",
+  "metrics": {
+    "stt_ms": [],
+    "tts_ms": [],
+    "llm_followup_ms": null,
+    "llm_assess_ms": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "est_cost_usd": 0.0
+  }
+}

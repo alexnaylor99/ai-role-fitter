@@ -1,0 +1,50 @@
+{
+  "id": "elevenlabs_fde",
+  "title": "ElevenLabs Forward Deployed Engineer",
+  "summary": "Ships tailored voice AI solutions end to end with strategic customers: hands-on Python and API integration, plus clear communication with engineers and executives.",
+  "source": "Built from the published ElevenLabs Forward Deployed Engineer job spec (responsibilities and requirements), 2025–2026 postings.",
+  "requirements": [
+    {
+      "dimension_id": "building",
+      "weight": 3,
+      "target": 4,
+      "why": "The role asks for strong Python, software architecture and API integration, and for designing and shipping tailored integrations for customers."
+    },
+    {
+      "dimension_id": "customer_value",
+      "weight": 3,
+      "target": 4,
+      "why": "FDEs own delivery end to end for strategic customers and work daily with their engineers and executives to get real value from the technology."
+    },
+    {
+      "dimension_id": "voice_audio",
+      "weight": 2,
+      "target": 3,
+      "why": "The product is voice and audio AI, and the spec asks for genuine enthusiasm for audio AI and accessibility."
+    },
+    {
+      "dimension_id": "prompting",
+      "weight": 2,
+      "target": 4,
+      "why": "Getting the best out of models is part of building high-quality customer solutions."
+    },
+    {
+      "dimension_id": "verification",
+      "weight": 2,
+      "target": 4,
+      "why": "The spec asks for first-principles problem solving; customer solutions in high-stakes settings must be reliable."
+    },
+    {
+      "dimension_id": "responsible",
+      "weight": 1,
+      "target": 3,
+      "why": "Enterprise customers expect careful handling of their data and clear answers on privacy."
+    },
+    {
+      "dimension_id": "breadth",
+      "weight": 1,
+      "target": 3,
+      "why": "Knowing the wider AI landscape helps when customers compare options."
+    }
+  ]
+}

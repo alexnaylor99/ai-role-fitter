@@ -1,0 +1,58 @@
+[
+  {
+    "question_id": "q1",
+    "dimension_id": "breadth",
+    "question": "Walk me through the AI tools you use in a typical week. What do you use each one for?",
+    "transcript": "Mostly Claude for writing and coding, and ChatGPT for quick questions. I use Cursor as my editor. I've tried a couple of local models with Ollama but I don't use them day to day.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q2",
+    "dimension_id": "prompting",
+    "question": "Tell me about a recent time you got a really good result from an AI model. What did you give it, and how did you get there?",
+    "transcript": "I needed a summary of a long customer call for my team. I gave the model the transcript, told it who the audience was, and gave it an example of the format I wanted. The first version was too long so I iterated and added a word limit as a constraint.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q3",
+    "dimension_id": "verification",
+    "question": "How do you decide whether you can trust an AI's output? Tell me about a time it got something wrong.",
+    "transcript": "If it's code I run it and write a quick test. For facts I check the source. Once it gave me an API parameter that didn't exist, so now I always cross-check against the docs.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q4",
+    "dimension_id": "building",
+    "question": "Have you built anything on top of an AI API, such as a script, an integration or an agent? What was it, how did you design it, and what was hard?",
+    "transcript": "I built a Python script that takes support tickets, calls an LLM API to classify them, and posts the result to Slack with a webhook. The hard part was handling rate limits and getting consistent output, so I added retries and a JSON schema.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q5",
+    "dimension_id": "voice_audio",
+    "question": "Where have you used, or where would you use, voice or audio AI, like speech-to-text, text-to-speech or voice agents?",
+    "transcript": "I've used speech-to-text to transcribe meetings. I'd love to build a voice agent for booking appointments, but I haven't built anything with text-to-speech yet.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q6",
+    "dimension_id": "responsible",
+    "question": "What do you think about before putting company or customer data into an AI tool?",
+    "transcript": "I check whether it's allowed by our policy, and I remove names and anything personal first. I prefer tools where data isn't used for training.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q7",
+    "dimension_id": "customer_value",
+    "question": "A customer's engineering team wants to add voice AI to their product but doesn't know where to start. How would you approach the first two weeks with them?",
+    "transcript": "I'd start with a discovery workshop to understand their users and pick one use case. Then I'd build a small pilot in the first week, and agree a success metric like call handling time so we know if it worked.",
+    "source": "typed"
+  },
+  {
+    "question_id": "followup",
+    "dimension_id": "voice_audio",
+    "question": "If you were building a voice feature for a customer, what would worry you most about speech recognition or synthetic voices?",
+    "transcript": "Accents and background noise for transcription, and latency for a live conversation. I'd also want to be clear with users that they're hearing a synthetic voice.",
+    "source": "typed"
+  }
+]

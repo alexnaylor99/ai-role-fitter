@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Role Fitter</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="interview.js" defer></script>
+  <script src="report.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <header class="app-header">
+      <h1>AI Role Fitter</h1>
+      <p class="muted">A short voice interview that shows how your AI skills fit a role.</p>
+    </header>
+
+    <!-- #start and #interview: owned by T4 (static/interview.js) -->
+    <section id="start" aria-labelledby="start-title">
+      <h2 id="start-title" class="visually-hidden">Start</h2>
+      <div id="role-card" class="card"></div>
+      <div id="mode-picker" class="card"></div>
+      <div id="status-strip" class="status" aria-live="polite"></div>
+      <div class="actions">
+        <button id="start-btn" type="button" class="primary">Start interview</button>
+        <button id="sample-btn" type="button">View sample report</button>
+      </div>
+    </section>
+
+    <section id="interview" hidden aria-labelledby="interview-title">
+      <h2 id="interview-title" class="visually-hidden">Interview</h2>
+      <p id="progress" class="muted" aria-live="polite"></p>
+      <div id="question-panel" class="card"></div>
+      <div id="answer-panel" class="card"></div>
+      <div id="interview-status" class="status" aria-live="polite"></div>
+    </section>
+
+    <!-- #report: owned by T5 (static/report.js) -->
+    <section id="report" hidden aria-labelledby="report-title">
+      <h2 id="report-title" class="visually-hidden">Report</h2>
+      <div id="report-content"></div>
+    </section>
+  </main>
+</body>
+</html>

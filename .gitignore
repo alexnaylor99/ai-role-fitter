@@ -1,0 +1,25 @@
+# Secrets — never commit real keys
+.env
+.env.*
+!.env.example
+
+# Personal data: saved interviews and audio
+sessions/
+recordings/
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.ogg
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

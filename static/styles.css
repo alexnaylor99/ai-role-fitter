@@ -1,0 +1,105 @@
+/* Base styles and theme tokens. Owned by T4; T5 appends a "report" section at the end. */
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --text: #1c1c1a;
+  --muted: #5f5f5a;
+  --border: #e2e2dc;
+  --accent: #2f5bea;
+  --accent-text: #ffffff;
+  --good: #1f7a4d;
+  --warn: #9a5b00;
+  --bad: #b3261e;
+  --radius: 10px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413;
+    --surface: #1e1e1c;
+    --text: #ecece8;
+    --muted: #a4a49e;
+    --border: #33332f;
+    --accent: #7c9bff;
+    --accent-text: #0d0d0c;
+    --good: #5fc48f;
+    --warn: #e0a548;
+    --bad: #f28b82;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #141413;
+  --surface: #1e1e1c;
+  --text: #ecece8;
+  --muted: #a4a49e;
+  --border: #33332f;
+  --accent: #7c9bff;
+  --accent-text: #0d0d0c;
+  --good: #5fc48f;
+  --warn: #e0a548;
+  --bad: #f28b82;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+.container { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+.app-header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.muted { color: var(--muted); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+}
+.card:empty { display: none; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+button {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  font: inherit;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.status { min-height: 1.5em; color: var(--muted); }
+.status.error { color: var(--bad); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+pre { white-space: pre-wrap; word-break: break-word; }
