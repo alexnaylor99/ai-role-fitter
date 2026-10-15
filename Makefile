@@ -1,5 +1,6 @@
 PY := .venv/bin/python
 PROVIDER ?= mock
+PORT ?= 8000
 
 .PHONY: setup dev test lint fmt secrets check eval sample
 
@@ -10,8 +11,8 @@ setup:  ## Create the virtualenv, install deps and git hooks
 	.venv/bin/pre-commit install
 	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example — add your keys there.")
 
-dev:  ## Run the app on http://127.0.0.1:8000 (local only)
-	$(PY) -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+dev:  ## Run the app on http://127.0.0.1:$(PORT) (local only); make dev PORT=8001
+	$(PY) -m uvicorn app.main:app --host 127.0.0.1 --port $(PORT) --reload
 
 test:
 	$(PY) -m pytest
