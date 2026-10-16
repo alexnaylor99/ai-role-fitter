@@ -293,16 +293,44 @@
     state.audioUrl = null;
   }
 
+  // Question audio costs ElevenLabs credits, so each question is fetched once: kept in memory
+  // for Replay and in the Cache API so a page reload doesn't synthesise it again.
+  const ttsMemory = new Map();
+  const TTS_CACHE = "tts-v1";
+
+  async function ttsBlob(text) {
+    if (ttsMemory.has(text)) return ttsMemory.get(text);
+    const key = `/tts-cache/${encodeURIComponent(text)}`;
+    try {
+      const hit = await (await caches.open(TTS_CACHE)).match(key);
+      if (hit) {
+        const cached = await hit.blob();
+        ttsMemory.set(text, cached);
+        return cached;
+      }
+    } catch {
+      // Cache API unavailable: fall through to the network
+    }
+    const started = performance.now();
+    const res = await fetch("/api/tts", jsonBody({ text }));
+    if (res.status === 204 || !res.ok) return null;
+    const blob = await res.blob();
+    state.metrics.tts_ms.push(Math.round(performance.now() - started));
+    ttsMemory.set(text, blob);
+    try {
+      await (await caches.open(TTS_CACHE)).put(key, new Response(blob));
+    } catch {
+      // not cached across reloads, still cached in memory
+    }
+    return blob;
+  }
+
   async function speak(text, replayButton) {
     stopAudio();
     const token = state.ttsToken;
-    const started = performance.now();
     try {
-      const res = await fetch("/api/tts", jsonBody({ text }));
-      if (res.status === 204 || !res.ok) return; // text-only is fine, never an error
-      const blob = await res.blob();
-      if (token !== state.ttsToken) return;
-      state.metrics.tts_ms.push(Math.round(performance.now() - started));
+      const blob = await ttsBlob(text);
+      if (!blob || token !== state.ttsToken) return; // no audio is fine, never an error
       state.audioUrl = URL.createObjectURL(blob);
       state.audio = new Audio(state.audioUrl);
       if (replayButton) replayButton.hidden = false;
