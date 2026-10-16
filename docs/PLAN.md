@@ -204,8 +204,8 @@ time with no code change, because prompts are loaded from files.
 | T1 Voice | ✅ merged |
 | T2 Claude | ✅ merged (live API check pending: needs key in .env) |
 | T3 Ollama | ⬜ |
-| T4 Interview UI | ⬜ |
-| T5 Report UI | ⬜ |
+| T4 Interview UI | ✅ merged |
+| T5 Report UI | ✅ merged |
 | T6 Rubric, prompts, eval | ⬜ |
 | Phase 3 Integration | ⬜ |
 | T7 Docs | ⬜ |
