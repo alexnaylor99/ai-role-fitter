@@ -201,8 +201,8 @@ time with no code change, because prompts are loaded from files.
 |---|---|
 | Phase 0 Setup | 🟡 Done except Claude API key (step 0.5). Ollama 0.12.3 + qwen2.5:1.5b measured at ~15 tokens/s, 4.6s model load |
 | Phase 1 Foundation | ✅ 68 tests, mock mode end to end, pushed |
-| T1 Voice | ⬜ |
-| T2 Claude | ⬜ |
+| T1 Voice | ✅ merged |
+| T2 Claude | ✅ merged (live API check pending: needs key in .env) |
 | T3 Ollama | ⬜ |
 | T4 Interview UI | ⬜ |
 | T5 Report UI | ⬜ |
