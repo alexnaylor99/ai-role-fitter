@@ -1,0 +1,94 @@
+{
+  "id": "novice",
+  "description": "Office coordinator who uses a chatbot now and then. Plain, short spoken answers.",
+  "style": "plain spoken",
+  "expected_band": "Early stage",
+  "expected": {
+    "breadth": [
+      1,
+      2
+    ],
+    "prompting": [
+      1,
+      2
+    ],
+    "verification": [
+      1,
+      2
+    ],
+    "building": [
+      1,
+      1
+    ],
+    "voice_audio": [
+      1,
+      2
+    ],
+    "responsible": [
+      1,
+      2
+    ],
+    "customer_value": [
+      1,
+      2
+    ]
+  },
+  "answers": [
+    {
+      "question_id": "q1",
+      "dimension_id": "breadth",
+      "question": "Walk me through the AI tools you use in a typical week. What do you use each one for?",
+      "transcript": "Honestly not much. I use ChatGPT sometimes, maybe once or twice a week, to help me word an email when I'm not sure how to say something. That's about it really.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q2",
+      "dimension_id": "prompting",
+      "question": "Tell me about a recent time you got a really good result from an AI model. What did you give it, and how did you get there?",
+      "transcript": "Um, I asked it to write a leaving card message for someone on my team. I just typed write a nice leaving message and it was fine, I think I changed a couple of words.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q3",
+      "dimension_id": "verification",
+      "question": "How do you decide whether you can trust an AI's output? Tell me about a time it got something wrong.",
+      "transcript": "I mostly just trust it to be honest, it sounds pretty confident. I suppose once it gave me a date for a bank holiday that was wrong, but I only noticed because my manager said.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q4",
+      "dimension_id": "building",
+      "question": "Have you built anything on top of an AI API, such as a script, an integration or an agent? What was it, how did you design it, and what was hard?",
+      "transcript": "No, I haven't built anything. I don't really code, so that's not something I've done.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q5",
+      "dimension_id": "voice_audio",
+      "question": "Where have you used, or where would you use, voice or audio AI, like speech-to-text, text-to-speech or voice agents?",
+      "transcript": "I use the voice assistant on my phone to set timers and things. I've not really thought about it for work.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q6",
+      "dimension_id": "responsible",
+      "question": "What do you think about before putting company or customer data into an AI tool?",
+      "transcript": "I'm not sure really. I guess I wouldn't put anyone's bank details in it. Other than that I haven't thought about it much.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q7",
+      "dimension_id": "customer_value",
+      "question": "A customer's engineering team wants to add voice AI to their product but doesn't know where to start. How would you approach the first two weeks with them?",
+      "transcript": "I'm not sure, I'd probably ask them what they want it to do and then maybe look for a tool that does that. I'd have to google it to be honest.",
+      "source": "voice"
+    },
+    {
+      "question_id": "followup",
+      "dimension_id": "building",
+      "question": "If you could automate one boring task at work with AI, what would it be, and how do you imagine it working?",
+      "transcript": "Probably sorting the shared inbox. I imagine it just reading the emails and putting them in folders, but I wouldn't know how to set that up.",
+      "source": "voice"
+    }
+  ]
+}

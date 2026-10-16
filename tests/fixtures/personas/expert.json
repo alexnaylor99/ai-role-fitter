@@ -1,0 +1,94 @@
+{
+  "id": "expert",
+  "description": "FDE-type engineer who ships voice AI integrations with customers. Fluent, detailed typed answers.",
+  "style": "polished",
+  "expected_band": "Strong fit",
+  "expected": {
+    "breadth": [
+      4,
+      5
+    ],
+    "prompting": [
+      4,
+      5
+    ],
+    "verification": [
+      4,
+      5
+    ],
+    "building": [
+      4,
+      5
+    ],
+    "voice_audio": [
+      4,
+      5
+    ],
+    "responsible": [
+      4,
+      5
+    ],
+    "customer_value": [
+      4,
+      5
+    ]
+  },
+  "answers": [
+    {
+      "question_id": "q1",
+      "dimension_id": "breadth",
+      "question": "Walk me through the AI tools you use in a typical week. What do you use each one for?",
+      "transcript": "I use Claude for most reasoning and coding work, a smaller open-weights model running locally for anything I can't send off the machine, and an embedding model for search. For speech I've used two different STT providers and compared them on accented audio. I pick models per task based on accuracy, latency and cost, and I re-test when new versions come out.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q2",
+      "dimension_id": "prompting",
+      "question": "Tell me about a recent time you got a really good result from an AI model. What did you give it, and how did you get there?",
+      "transcript": "For a customer's support agent I wrote a system prompt with the agent's role, the policies it must follow, three example conversations and a strict JSON output format. I built a set of 40 test conversations, ran each prompt version against them, and changed one thing at a time. That took the pass rate from about 60 to 92 per cent over a few iterations.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q3",
+      "dimension_id": "verification",
+      "question": "How do you decide whether you can trust an AI's output? Tell me about a time it got something wrong.",
+      "transcript": "I never rely on a single output for anything that matters. I keep an eval set for every production prompt, check structured output against a schema, and ask for sources I can verify. A model once hallucinated a refund policy in a test run; we caught it in evals, and added retrieval from the real policy documents plus a check that answers cite them.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q4",
+      "dimension_id": "building",
+      "question": "Have you built anything on top of an AI API, such as a script, an integration or an agent? What was it, how did you design it, and what was hard?",
+      "transcript": "I've shipped several integrations. The latest is a Python service that takes inbound calls, transcribes them with streaming speech-to-text, calls an LLM with tool calling to look up orders through the customer's API, and replies with text-to-speech. I designed it as adapters behind interfaces so we could swap providers. The hard parts were keeping end-to-end latency under a second, handling barge-in, and keeping cost per call predictable, so we tracked latency and tokens per call on a dashboard and ran evals before each release.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q5",
+      "dimension_id": "voice_audio",
+      "question": "Where have you used, or where would you use, voice or audio AI, like speech-to-text, text-to-speech or voice agents?",
+      "transcript": "Voice is most of my work now: voice agents for support and booking, dubbing training videos into other languages, and text-to-speech for accessibility so visually impaired users can listen to long documents. I know the limits too: accents and background noise hurt transcription, numbers and names need careful handling, and synthetic voices need clear consent and disclosure.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q6",
+      "dimension_id": "responsible",
+      "question": "What do you think about before putting company or customer data into an AI tool?",
+      "transcript": "First, what the data is and whether we're allowed to send it: personal data, GDPR, the customer's own policy and their data processing agreement. Then retention and whether the provider trains on it. Where I can, I anonymise or redact PII before it leaves their systems, and for voice I make sure callers have consented to recording. I also check outputs for bias across different user groups.",
+      "source": "typed"
+    },
+    {
+      "question_id": "q7",
+      "dimension_id": "customer_value",
+      "question": "A customer's engineering team wants to add voice AI to their product but doesn't know where to start. How would you approach the first two weeks with them?",
+      "transcript": "Week one is discovery: I'd meet their engineers and the product owner, map the user journeys, and pick one high-value, low-risk use case, such as after-hours call handling. We'd agree success metrics up front, like containment rate, latency and customer satisfaction. Week two, I'd build a working pilot with their team on their stack, run it against real recorded calls, and present results and a scale-up plan to their engineering lead and an executive sponsor in plain language.",
+      "source": "typed"
+    },
+    {
+      "question_id": "followup",
+      "dimension_id": "verification",
+      "question": "When a voice agent you've built gives a wrong answer in production, how do you find out, and what do you change?",
+      "transcript": "We sample and review a share of live calls every week, alert on low-confidence transcripts and on calls that escalate to a human, and add every failure to the eval set. Then I fix the prompt, the retrieval or the tool, and only release once the evals pass.",
+      "source": "typed"
+    }
+  ]
+}
