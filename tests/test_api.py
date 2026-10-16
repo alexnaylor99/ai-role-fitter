@@ -128,3 +128,50 @@ def test_frontend_served(client):
     res = client.get("/")
     assert res.status_code == 200
     assert "AI Role Fitter" in res.text
+
+
+class _CountingVoice:
+    """Fake voice that records how often audio is synthesised (no network)."""
+
+    name = "counting"
+
+    def __init__(self):
+        self.calls = 0
+
+    async def transcribe(self, audio: bytes, mime_type: str) -> str:
+        return "x"
+
+    async def synthesize(self, text: str) -> bytes:
+        self.calls += 1
+        return b"ID3-fake-mp3"
+
+
+@pytest.fixture
+def counting_voice(monkeypatch, tmp_path):
+    import app.main as main
+
+    voice = _CountingVoice()
+    monkeypatch.setattr(main, "get_voice", lambda settings: voice)
+    monkeypatch.setattr(main, "TTS_CACHE_DIR", tmp_path / "tts_cache")
+    return voice
+
+
+def test_fixed_question_audio_is_synthesised_once(client, counting_voice):
+    from app.rubric import QUESTIONS
+
+    text = QUESTIONS[0]["text"]
+    first = client.post("/api/tts", json={"text": text})
+    second = client.post("/api/tts", json={"text": text})
+    assert first.headers["X-TTS-Cache"] == "miss"
+    assert second.headers["X-TTS-Cache"] == "hit"
+    assert second.content == first.content == b"ID3-fake-mp3"
+    assert counting_voice.calls == 1
+
+
+def test_follow_up_audio_is_never_cached(client, counting_voice, tmp_path):
+    text = "A personalised follow-up question?"
+    client.post("/api/tts", json={"text": text})
+    res = client.post("/api/tts", json={"text": text})
+    assert res.headers["X-TTS-Cache"] == "miss"
+    assert counting_voice.calls == 2
+    assert not (tmp_path / "tts_cache").exists()

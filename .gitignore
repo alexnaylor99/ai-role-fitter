@@ -6,6 +6,7 @@
 # Personal data: saved interviews and audio
 sessions/
 recordings/
+tts_cache/
 *.webm
 *.wav
 *.mp3

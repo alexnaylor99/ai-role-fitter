@@ -193,6 +193,7 @@ priority, highest first.
 | F11 | Sessions are saved to `sessions/` (git-ignored) **only** if `SAVE_SESSIONS=true`. |
 | F12 | The role profile is loaded from a JSON file (`ROLE_PROFILE`) and validated at startup. An invalid profile stops the app with a clear message. |
 | F13 | The report always shows the disclaimer: "Indicative, based on a short self-reported interview. Not a hiring assessment." |
+| F14 | Audio for the 7 fixed questions is synthesised once and cached in git-ignored `tts_cache/`; follow-up questions are never cached. Saves most of the ElevenLabs TTS credits per interview. |
 
 ## 7. Non-functional requirements
 

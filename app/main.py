@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import time
@@ -36,6 +37,8 @@ log = logging.getLogger("ai_role_fitter")
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
 SAMPLES_DIR = ROOT / "samples"
 SESSIONS_DIR = ROOT / "sessions"
+TTS_CACHE_DIR = ROOT / "tts_cache"  # git-ignored
+FIXED_QUESTION_TEXTS = frozenset(q["text"] for q in QUESTIONS)
 
 
 @lru_cache
@@ -121,13 +124,32 @@ async def role() -> RoleProfile:
 
 @app.post("/api/tts")
 async def tts(body: TTSRequest) -> Response:
-    voice = get_voice(get_settings())
+    s = get_settings()
+    voice = get_voice(s)
     if voice is None:
         return Response(status_code=204)
+
+    # The 7 fixed questions never change, so their audio is synthesised once and reused:
+    # most of an interview's TTS credits. Follow-up questions are generated per person,
+    # so they are never cached.
+    cache_path = None
+    if body.text in FIXED_QUESTION_TEXTS:
+        key = f"{voice.name}|{s.elevenlabs_voice_id}|{s.elevenlabs_tts_model}|{body.text}"
+        cache_path = TTS_CACHE_DIR / f"{hashlib.sha256(key.encode()).hexdigest()}.mp3"
+        if cache_path.is_file():
+            return Response(
+                content=cache_path.read_bytes(),
+                media_type="audio/mpeg",
+                headers={"X-TTS-Cache": "hit"},
+            )
+
     audio = await voice.synthesize(body.text)
     if not audio:
         return Response(status_code=204)
-    return Response(content=audio, media_type="audio/mpeg")
+    if cache_path is not None:
+        TTS_CACHE_DIR.mkdir(exist_ok=True)
+        cache_path.write_bytes(audio)
+    return Response(content=audio, media_type="audio/mpeg", headers={"X-TTS-Cache": "miss"})
 
 
 @app.post("/api/transcribe")
