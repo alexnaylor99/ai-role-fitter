@@ -50,8 +50,10 @@ cache). Use that if you need to show the report again.
 - **Hardware is the limit:** the same model writes 850 to 3,000+ tokens for the same answers. On
   2 cores that is 2–6 minutes, and it slows further when other apps are busy. That is why local
   mode asks for a shorter report, caps its length and says "about 3 minutes".
-- **Quality trade-off:** in the eval the 1.5B model scored the novice and the practitioner within
-  range, but it is generous at the top (practitioner 100% vs Claude's 83%). Claude separates
-  people better.
+- **Quality trade-off (measured):** on the 3 eval personas, Claude (Haiku 5.5) put 20/21
+  scores in range and got all 3 fit bands right. The local 1.5B model, with the shorter
+  reports it needs to finish in ~2 minutes, put 15/21 in range and got 1/3 bands right. It is
+  generous: it scored the novice at 63% (expected under 50%) and the practitioner at 100%
+  (Claude: 83%). Local mode is a privacy option, not the accurate one.
 - **What a customer would do:** run local mode on better hardware (a GPU or Apple Silicon), or a
   larger local model, or a private cloud deployment. The provider is a config switch.

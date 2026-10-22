@@ -208,7 +208,7 @@ time with no code change, because prompts are loaded from files.
 | T4 Interview UI | ✅ merged |
 | T5 Report UI | ✅ merged |
 | T6 Rubric, prompts, eval | ✅ merged |
-| Phase 3 Integration | 🟡 Claude eval 20/21, bands 3/3 (Haiku 5.5); caching added; real sample report. Local eval still to run |
+| Phase 3 Integration | ✅ Claude eval 20/21, bands 3/3; local eval 15/21, bands 1/3, ~100–115s per report (no timeouts); caching; real sample report |
 | T7 Docs | ⬜ |
 | T8 Security | ✅ merged: DNS-rebinding + cross-site fixes, CSP, SECURITY.md |
 | Phase 5 Release | ⬜ |
