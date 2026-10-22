@@ -150,31 +150,14 @@ async def test_evidence_guard_blanks_invented_quotes(sample_answers):
 
 
 @respx.mock
-async def test_follow_up_takes_first_question_sentence(sample_answers):
-    route = respx.post(CHAT).mock(
-        return_value=_reply('Sure! "How do you check an AI answer before you rely on it?" Thanks.')
-    )
-    question, dimension, usage = await _llm().follow_up(sample_answers, ROLE)
+async def test_follow_up_is_instant_and_makes_no_model_call(sample_answers):
+    route = respx.post(CHAT).mock(return_value=_reply("unused"))
+    question, dimension, usage = await _llm().follow_up(sample_answers[:7], ROLE)
 
-    assert question == "How do you check an AI answer before you rely on it?"
-    assert dimension is None
-    assert usage.output_tokens == 50
-    body = json.loads(route.calls[0].request.content)
-    assert "format" not in body  # plain text, not JSON
-
-
-@respx.mock
-async def test_follow_up_caps_at_forty_words(sample_answers):
-    respx.post(CHAT).mock(return_value=_reply(" ".join(["word"] * 60) + "?"))
-    question, _, _ = await _llm().follow_up(sample_answers, ROLE)
-    assert len(question.split()) == 40
-
-
-@respx.mock
-async def test_follow_up_empty_reply_is_an_error(sample_answers):
-    respx.post(CHAT).mock(return_value=_reply("   "))
-    with pytest.raises(LLMError):
-        await _llm().follow_up(sample_answers, ROLE)
+    assert not route.called  # rule-based: no ~86s wait for the local model
+    assert dimension in {"building", "customer_value"}  # the role's weight-3 dimensions
+    assert question.endswith("?")
+    assert usage.input_tokens == 0
 
 
 @pytest.mark.parametrize(
@@ -207,12 +190,12 @@ async def test_timeout_is_a_friendly_error(sample_answers):
 async def test_server_down_and_missing_model(sample_answers):
     respx.post(CHAT).mock(side_effect=httpx.ConnectError("refused"))
     with pytest.raises(LLMError) as err:
-        await _llm().follow_up(sample_answers, ROLE)
+        await _llm().assess(sample_answers, ROLE)
     assert err.value.code == "ollama_unreachable"
 
     respx.post(CHAT).mock(return_value=httpx.Response(404, json={"error": "model not found"}))
     with pytest.raises(LLMError) as err:
-        await _llm().follow_up(sample_answers, ROLE)
+        await _llm().assess(sample_answers, ROLE)
     assert err.value.code == "ollama_model_missing"
 
 

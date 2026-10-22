@@ -15,7 +15,7 @@ from app.contracts import (
     Recommendation,
     RoleProfile,
 )
-from app.rubric import DIMENSIONS
+from app.rubric import DIMENSIONS, FOLLOW_UP_QUESTIONS
 
 KEYWORDS: dict[str, list[str]] = {
     "breadth": ["chatgpt", "claude", "gemini", "copilot", "cursor", "perplexity", "llama",
@@ -34,22 +34,6 @@ KEYWORDS: dict[str, list[str]] = {
                        "metric", "workshop", "success", "scope"],
 }  # fmt: skip
 
-FOLLOW_UPS: dict[str, str] = {
-    "breadth": "Which AI tools or models have you compared for the same task, "
-    "and what made you pick one over another?",
-    "prompting": "Can you walk me through how you'd structure a prompt for a tricky task, "
-    "and how you'd improve it if the first result was poor?",
-    "verification": "When an AI gives you an answer you'll rely on, what exactly do you do "
-    "to check it before you use it?",
-    "building": "Tell me more about the technical side: how would you design an integration "
-    "with an AI API, and what would you watch out for?",
-    "voice_audio": "If you were building a voice feature for a customer, what would worry you "
-    "most about speech recognition or synthetic voices?",
-    "responsible": "How would you explain to a customer what happens to their data when they "
-    "use an AI feature you've built?",
-    "customer_value": "How would you measure whether an AI pilot you ran for a customer "
-    "actually succeeded?",
-}
 
 RECOMMENDATIONS: dict[str, tuple[str, str, str]] = {
     "breadth": ("Compare three models on one task",
@@ -115,7 +99,7 @@ class MockLLM:
             key=lambda r: r.weight * (5 - _score(texts[r.dimension_id], r.dimension_id)[0]),
         ).dimension_id
         ms = int((time.perf_counter() - start) * 1000)
-        return FOLLOW_UPS[target], target, LLMUsage(duration_ms=ms)
+        return FOLLOW_UP_QUESTIONS[target], target, LLMUsage(duration_ms=ms)
 
     async def assess(self, answers: list[Answer], role: RoleProfile) -> tuple[Assessment, LLMUsage]:
         start = time.perf_counter()

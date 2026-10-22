@@ -7,7 +7,6 @@ Ollama's `format` option, then the output is repaired and validated by Pydantic.
 from __future__ import annotations
 
 import json
-import re
 import time
 from typing import Any
 
@@ -24,11 +23,9 @@ from app.contracts import (
     LLMUsage,
     RoleProfile,
 )
-from app.llm.claude import guard_evidence
-from app.rubric import build_assess_prompt, build_follow_up_prompt
+from app.llm.evidence import guard_evidence
+from app.rubric import build_assess_prompt, rule_based_follow_up
 
-MAX_FOLLOW_UP_WORDS = 40
-FOLLOW_UP_MAX_TOKENS = 120
 OPTIONS: dict[str, Any] = {"temperature": 0.2, "num_ctx": 8192}
 
 _STRING = {"type": "string"}
@@ -120,20 +117,6 @@ def _repair(data: Any) -> Any:
     return data
 
 
-def _first_question(text: str) -> str:
-    """Take the first question sentence from free text and cap it at 40 words."""
-    text = " ".join(text.split()).strip(" \"'`*")
-    sentences = [s.strip() for s in re.findall(r"[^.!?]*[.!?]+[\"']?|[^.!?]+$", text) if s.strip()]
-    chosen = next((s for s in sentences if s.rstrip("\"'").endswith("?")), None)
-    if chosen is None:
-        chosen = sentences[0] if sentences else ""
-    chosen = chosen.strip(" \"'`*")
-    words = chosen.split()
-    if len(words) > MAX_FOLLOW_UP_WORDS:
-        chosen = " ".join(words[:MAX_FOLLOW_UP_WORDS]).rstrip(",;:.") + "?"
-    return chosen
-
-
 class OllamaLLM:
     name = "ollama"
 
@@ -155,17 +138,12 @@ class OllamaLLM:
     async def follow_up(
         self, answers: list[Answer], role: RoleProfile
     ) -> tuple[str, DimensionId | None, LLMUsage]:
-        system, user = build_follow_up_prompt(answers, role)
-        user += "\n\nReply with the question only, as a single sentence."
+        # On this laptop's CPU an LLM follow-up took ~86s mid-interview, so local mode picks
+        # the follow-up with a rule instead: instant, private, and it names its dimension.
         start = time.perf_counter()
-        usage = LLMUsage(input_tokens=0, output_tokens=0)
-        body = await self._chat(system, user, usage, extra={"num_predict": FOLLOW_UP_MAX_TOKENS})
-        question = _first_question(body["message"]["content"])
-        if not question:
-            raise LLMError("llm_invalid_output", "The local model returned no question.")
-        usage.duration_ms = int((time.perf_counter() - start) * 1000)
-        # A plain-text reply doesn't name its target dimension, so none is reported.
-        return question, None, usage
+        question, dimension_id = rule_based_follow_up(answers, role)
+        ms = int((time.perf_counter() - start) * 1000)
+        return question, dimension_id, LLMUsage(input_tokens=0, output_tokens=0, duration_ms=ms)
 
     async def assess(self, answers: list[Answer], role: RoleProfile) -> tuple[Assessment, LLMUsage]:
         system, user = build_assess_prompt(answers, role)

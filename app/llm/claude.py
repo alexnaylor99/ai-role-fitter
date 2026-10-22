@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 import time
 from typing import Any
 
@@ -20,6 +19,7 @@ from app.contracts import (
     LLMUsage,
     RoleProfile,
 )
+from app.llm.evidence import guard_evidence
 from app.rubric import build_assess_prompt, build_follow_up_prompt
 
 # Server-side refusal fallbacks: `fallbacks: "default"` is gated by this beta header.
@@ -95,20 +95,6 @@ class _FollowUp(BaseModel):
         if not v or len(v.split()) > MAX_FOLLOW_UP_WORDS:
             raise ValueError(f"question must be 1-{MAX_FOLLOW_UP_WORDS} words")
         return v
-
-
-def _normalise(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip().casefold()
-
-
-def guard_evidence(assessment: Assessment, answers: list[Answer]) -> Assessment:
-    """Blank any evidence_quote that isn't verbatim from one of the user's transcripts."""
-    transcripts = [_normalise(a.transcript) for a in answers]
-    for d in assessment.dimensions:
-        quote = _normalise(d.evidence_quote)
-        if quote and not any(quote in t for t in transcripts):
-            d.evidence_quote = ""
-    return assessment
 
 
 class ClaudeLLM:

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     ollama_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "qwen2.5:1.5b"
-    ollama_timeout_s: float = 240.0
+    ollama_timeout_s: float = 360.0
 
     voice_provider: Literal["auto", "elevenlabs", "mock", "none"] = "auto"
     elevenlabs_api_key: SecretStr | None = None

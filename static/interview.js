@@ -20,7 +20,7 @@
   ];
   const ESTIMATES = {
     claude: "This usually takes about 20 seconds.",
-    ollama: "Running on this device, this usually takes about 2 minutes.",
+    ollama: "Running on this device, this usually takes about 3 minutes.",
     mock: "This should only take a moment.",
   };
 

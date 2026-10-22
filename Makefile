@@ -9,7 +9,7 @@ setup:  ## Create the virtualenv, install deps and git hooks
 	$(PY) -m pip install -q --upgrade pip
 	$(PY) -m pip install -q -r requirements-dev.txt
 	.venv/bin/pre-commit install
-	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example — add your keys there.")
+	@test -f .env || echo "No .env yet: copy .env.example to .env and add your keys (main folder only, never in a worktree)."
 
 dev:  ## Run the app on http://127.0.0.1:$(PORT) (local only); make dev PORT=8001
 	$(PY) -m uvicorn app.main:app --host 127.0.0.1 --port $(PORT) --reload

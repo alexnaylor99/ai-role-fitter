@@ -59,3 +59,15 @@ async def test_mock_follow_up_targets_a_dimension(sample_answers):
     text, dimension_id, _ = await MockLLM().follow_up(sample_answers[:7], ROLE)
     assert dimension_id in DIMENSION_IDS
     assert 0 < len(text.split()) <= 40
+
+
+def test_rule_based_follow_up_picks_thinnest_high_weight_answer(sample_answers):
+    from app.rubric import rule_based_follow_up
+
+    answers = [a.model_copy() for a in sample_answers[:7]]
+    for a in answers:
+        if a.dimension_id == "customer_value":
+            a.transcript = "Not sure."
+    question, dimension = rule_based_follow_up(answers, ROLE)
+    assert dimension == "customer_value"
+    assert 0 < len(question.split()) <= 40

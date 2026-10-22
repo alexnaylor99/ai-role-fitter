@@ -8,9 +8,42 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app.contracts import Answer, Assessment, Level, RoleProfile
+from app.contracts import DIMENSION_IDS, Answer, Assessment, DimensionId, Level, RoleProfile
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+
+# Follow-up questions for the rule-based picker (local and mock modes), one per dimension.
+FOLLOW_UP_QUESTIONS: dict[str, str] = {
+    "breadth": "Which AI tools or models have you compared for the same task, "
+    "and what made you pick one over another?",
+    "prompting": "Can you walk me through how you'd structure a prompt for a tricky task, "
+    "and how you'd improve it if the first result was poor?",
+    "verification": "When an AI gives you an answer you'll rely on, what exactly do you do "
+    "to check it before you use it?",
+    "building": "Tell me more about the technical side: how would you design an integration "
+    "with an AI API, and what would you watch out for?",
+    "voice_audio": "If you were building a voice feature for a customer, what would worry you "
+    "most about speech recognition, synthetic voices or accessibility?",
+    "responsible": "How would you explain to a customer what happens to their data when they "
+    "use an AI feature you've built?",
+    "customer_value": "How would you measure whether an AI pilot you ran for a customer "
+    "actually succeeded?",
+}
+
+
+def rule_based_follow_up(answers: list[Answer], role: RoleProfile) -> tuple[str, DimensionId]:
+    """Pick the follow-up without an LLM: the role's most important dimension (highest
+    weight) where the answer was thinnest (fewest words). Instant and deterministic."""
+    words = {d: 0 for d in DIMENSION_IDS}
+    for a in answers:
+        if a.dimension_id:
+            words[a.dimension_id] += len(a.transcript.split())
+    target = min(
+        role.requirements,
+        key=lambda r: (-r.weight, words[r.dimension_id], DIMENSION_IDS.index(r.dimension_id)),
+    ).dimension_id
+    return FOLLOW_UP_QUESTIONS[target], target
+
 
 DIMENSIONS: dict[str, dict[str, str]] = {
     "breadth": {
@@ -32,7 +65,8 @@ DIMENSIONS: dict[str, dict[str, str]] = {
     },
     "voice_audio": {
         "name": "Voice and audio AI",
-        "five": "Has used or built with STT/TTS/voice agents and knows the use cases and limits.",
+        "five": "Has used or built with STT/TTS/voice agents, knows the use cases and limits, "
+        "and designs for accessibility.",
     },
     "responsible": {
         "name": "Responsible use",
