@@ -22,7 +22,7 @@ def main() -> None:
     args = parser.parse_args()
 
     answers = json.loads((SAMPLES / "sample_answers.json").read_text(encoding="utf-8"))
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1:8000") as client:
         res = client.post("/api/assess", json={"provider": args.provider, "answers": answers})
     if res.status_code != 200:
         raise SystemExit(f"Failed: {res.status_code} {res.text}")

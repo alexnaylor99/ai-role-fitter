@@ -6,18 +6,20 @@ import hashlib
 import json
 import logging
 import time
+import uuid
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from app.config import ROOT, get_settings
+from app.config import LOOPBACK_HOSTS, ROOT, get_settings
 from app.contracts import (
     AppError,
     AssessRequest,
@@ -35,6 +37,7 @@ from app.voice import get_voice
 log = logging.getLogger("ai_role_fitter")
 
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
+SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 SAMPLES_DIR = ROOT / "samples"
 SESSIONS_DIR = ROOT / "sessions"
 TTS_CACHE_DIR = ROOT / "tts_cache"  # git-ignored
@@ -59,11 +62,58 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="AI Role Fitter", lifespan=lifespan)
 
 
+# Defence in depth for the report page, which renders LLM output: only our own scripts plus
+# Chart.js from cdnjs (also pinned by SRI), no framing, no sniffing.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; "
+        "style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; "
+        "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; "
+        "frame-ancestors 'none'"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    response = await call_next(request)
+    for name, value in SECURITY_HEADERS.items():
+        response.headers.setdefault(name, value)
+    return response
+
+
 # --- Errors: always {error: {code, message}}, never keys or stack traces -------------
 
 
 def _error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}})
+
+
+# --- Local requests only ----------------------------------------------------------
+
+
+@app.middleware("http")
+async def _local_requests_only(request: Request, call_next):
+    """Refuse requests whose Host isn't this machine, and cross-site writes.
+
+    Binding to 127.0.0.1 isn't enough on its own: with DNS rebinding a web page can point
+    its own domain at 127.0.0.1 and then call this API (and spend the API keys) as if it
+    were same-origin. The browser still sends the page's domain as the Host header.
+    """
+    host_header = request.headers.get("host", "")
+    host = urlsplit(f"//{host_header}").hostname or ""
+    if host not in LOOPBACK_HOSTS:
+        return _error(400, "bad_host", "This app only accepts requests to 127.0.0.1.")
+    # A page on another site can still send a "simple" cross-site POST (e.g. a multipart
+    # form to /api/transcribe) without a CORS preflight. Browsers always send Origin on
+    # those, so refuse any write whose Origin isn't this app.
+    origin = request.headers.get("origin")
+    if request.method not in SAFE_METHODS and origin is not None:
+        if urlsplit(origin).netloc.lower() != host_header.lower():
+            return _error(403, "cross_origin", "Requests from other sites are not allowed.")
+    return await call_next(request)
 
 
 @app.exception_handler(AppError)
@@ -80,10 +130,15 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
     )
 
 
-@app.exception_handler(Exception)
-async def _unexpected(_: Request, exc: Exception) -> JSONResponse:
-    log.error("Unexpected error: %s", type(exc).__name__)  # type only: messages may hold data
-    return _error(500, "internal_error", "Something went wrong. Please try again.")
+@app.middleware("http")
+async def _unexpected(request: Request, call_next):
+    # A middleware, not an exception handler: Starlette re-raises after running a handler
+    # for Exception, so uvicorn would log the full traceback and message anyway.
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        log.error("Unexpected error: %s", type(exc).__name__)  # type only: may hold data
+        return _error(500, "internal_error", "Something went wrong. Please try again.")
 
 
 # --- Routes ------------------------------------------------------------------------
@@ -150,8 +205,11 @@ async def tts(body: TTSRequest) -> Response:
     if not audio:
         return Response(status_code=204)
     if cache_path is not None:
+        # Write then rename, so a crash or a parallel request never serves a partial file.
         TTS_CACHE_DIR.mkdir(exist_ok=True)
-        cache_path.write_bytes(audio)
+        tmp_path = cache_path.with_suffix(f".{uuid.uuid4().hex}.tmp")
+        tmp_path.write_bytes(audio)
+        tmp_path.replace(cache_path)
     return Response(content=audio, media_type="audio/mpeg", headers={"X-TTS-Cache": "miss"})
 
 

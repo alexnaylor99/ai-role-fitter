@@ -1,7 +1,8 @@
 import pytest
+import respx
 from fastapi.testclient import TestClient
 
-from app.config import get_settings
+from app.config import ROOT, get_settings
 from app.contracts import Report
 from app.main import app
 from app.voice.mock import MOCK_TRANSCRIPT
@@ -9,7 +10,7 @@ from app.voice.mock import MOCK_TRANSCRIPT
 
 @pytest.fixture
 def client():
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://127.0.0.1:8000") as c:
         yield c
 
 
@@ -175,3 +176,86 @@ def test_follow_up_audio_is_never_cached(client, counting_voice, tmp_path):
     assert res.headers["X-TTS-Cache"] == "miss"
     assert counting_voice.calls == 2
     assert not (tmp_path / "tts_cache").exists()
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1:8000", "localhost:8000", "LOCALHOST", "[::1]:8000"])
+def test_local_host_header_accepted(client, host):
+    assert client.get("/api/health", headers={"host": host}).status_code == 200
+
+
+@pytest.mark.parametrize(
+    "host", ["attacker.example", "127.0.0.1.attacker.example:8000", "0.0.0.0:8000", ""]
+)
+def test_dns_rebinding_host_refused(client, host):
+    res = client.get("/api/health", headers={"host": host})
+    assert res.status_code == 400
+    assert res.json()["error"]["code"] == "bad_host"
+
+
+def test_cross_site_write_refused(client, monkeypatch):
+    monkeypatch.setenv("VOICE_PROVIDER", "mock")
+    get_settings.cache_clear()
+    res = client.post(
+        "/api/transcribe",
+        headers={"origin": "https://attacker.example"},
+        files={"audio": ("a.webm", b"x", "audio/webm")},
+    )
+    assert res.status_code == 403
+    assert res.json()["error"]["code"] == "cross_origin"
+    assert (
+        client.post("/api/tts", headers={"origin": "null"}, json={"text": "hi"}).status_code == 403
+    )
+
+
+def test_same_origin_write_allowed(client, sample_answers):
+    res = client.post(
+        "/api/follow-up",
+        headers={"origin": "http://127.0.0.1:8000"},
+        json={"answers": _answers(sample_answers)[:7]},
+    )
+    assert res.status_code == 200
+
+
+def test_unexpected_error_is_not_re_raised_or_logged_in_full(client, monkeypatch, caplog):
+    # TestClient re-raises whatever reaches the server, as uvicorn would log it.
+    def boom():
+        raise RuntimeError("a transcript that must not reach the logs")
+
+    monkeypatch.setattr("app.main.get_settings", boom)
+    res = client.get("/api/health")
+    assert res.status_code == 500
+    assert res.json()["error"]["code"] == "internal_error"
+    assert "transcript" not in caplog.text
+
+
+def test_security_headers_on_frontend(client):
+    res = client.get("/")
+    csp = res.headers["content-security-policy"]
+    assert "script-src 'self' https://cdnjs.cloudflare.com;" in csp
+    assert "frame-ancestors 'none'" in csp
+    assert res.headers["x-content-type-options"] == "nosniff"
+
+
+FAKE_KEYS = {
+    "ANTHROPIC_API_KEY": "sk-ant-test-FAKEKEY-never-leave-server",  # pragma: allowlist secret
+    "ELEVENLABS_API_KEY": "el-test-FAKEKEY-must-never-leave-the-server",  # pragma: allowlist secret
+}
+
+
+def test_keys_never_reach_the_client(client, monkeypatch, sample_answers):
+    for var, value in FAKE_KEYS.items():
+        monkeypatch.setenv(var, value)
+    get_settings.cache_clear()
+    with respx.mock(assert_all_called=False) as mock:  # no real network
+        mock.route().respond(503)
+        responses = [
+            client.get(path)
+            for path in ["/api/health", "/api/questions", "/api/role", "/api/sample-report", "/"]
+        ]
+        responses.append(client.post("/api/assess", json={"answers": _answers(sample_answers)}))
+        responses.append(client.post("/api/tts", json={"text": "Not a fixed question."}))
+    assert client.get("/api/health").json()["providers"]["claude"]["configured"] is True
+    static = "".join(p.read_text() for p in (ROOT / "static").iterdir())
+    for value in FAKE_KEYS.values():
+        assert all(value not in (r.text + str(r.headers)) for r in responses)
+        assert value not in static
