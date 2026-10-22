@@ -1,7 +1,8 @@
 import pytest
+import respx
 from fastapi.testclient import TestClient
 
-from app.config import get_settings
+from app.config import ROOT, get_settings
 from app.contracts import Report
 from app.main import app
 from app.voice.mock import MOCK_TRANSCRIPT
@@ -233,3 +234,28 @@ def test_security_headers_on_frontend(client):
     assert "script-src 'self' https://cdnjs.cloudflare.com;" in csp
     assert "frame-ancestors 'none'" in csp
     assert res.headers["x-content-type-options"] == "nosniff"
+
+
+FAKE_KEYS = {
+    "ANTHROPIC_API_KEY": "sk-ant-test-FAKEKEY-never-leave-server",  # pragma: allowlist secret
+    "ELEVENLABS_API_KEY": "el-test-FAKEKEY-must-never-leave-the-server",  # pragma: allowlist secret
+}
+
+
+def test_keys_never_reach_the_client(client, monkeypatch, sample_answers):
+    for var, value in FAKE_KEYS.items():
+        monkeypatch.setenv(var, value)
+    get_settings.cache_clear()
+    with respx.mock(assert_all_called=False) as mock:  # no real network
+        mock.route().respond(503)
+        responses = [
+            client.get(path)
+            for path in ["/api/health", "/api/questions", "/api/role", "/api/sample-report", "/"]
+        ]
+        responses.append(client.post("/api/assess", json={"answers": _answers(sample_answers)}))
+        responses.append(client.post("/api/tts", json={"text": "Not a fixed question."}))
+    assert client.get("/api/health").json()["providers"]["claude"]["configured"] is True
+    static = "".join(p.read_text() for p in (ROOT / "static").iterdir())
+    for value in FAKE_KEYS.values():
+        assert all(value not in (r.text + str(r.headers)) for r in responses)
+        assert value not in static
