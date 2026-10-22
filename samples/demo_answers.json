@@ -1,0 +1,58 @@
+[
+  {
+    "question_id": "q1",
+    "dimension_id": "breadth",
+    "question": "Walk me through the AI tools you use in a typical week. What do you use each one for?",
+    "transcript": "Claude is my main tool for coding and design discussions, GitHub Copilot in the editor for small completions, and Perplexity when I need sources for a quick bit of research. I've also run a small local model with Ollama for anything I'd rather not send to the cloud. I pick based on the task: reasoning, speed, or privacy.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q2",
+    "dimension_id": "prompting",
+    "question": "Tell me about a recent time you got a really good result from an AI model. What did you give it, and how did you get there?",
+    "transcript": "I needed to turn messy customer call notes into structured follow-up tasks. I gave the model the notes, a short description of who reads the output, two worked examples and a JSON format. The first results missed deadlines mentioned in passing, so I added a rule for dates and tested it on ten real notes until it got them all.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q3",
+    "dimension_id": "verification",
+    "question": "How do you decide whether you can trust an AI's output? Tell me about a time it got something wrong.",
+    "transcript": "I treat it as a first draft. For code I run it and add tests; for facts I check the source. It once invented a parameter for a speech API, which only showed up when the request failed, so now I check generated API calls against the official docs and keep a few test cases for anything I reuse.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q4",
+    "dimension_id": "building",
+    "question": "Have you built anything on top of an AI API, such as a script, an integration or an agent? What was it, how did you design it, and what was hard?",
+    "transcript": "I built a Python service that takes support tickets, calls an LLM API to classify and summarise them, and posts them to the right team's channel through a webhook. I kept the model call behind a small interface so I could swap providers. The hard parts were rate limits and inconsistent output, so I added retries with backoff, a JSON schema, and a small eval set of 30 labelled tickets to check accuracy before each change.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q5",
+    "dimension_id": "voice_audio",
+    "question": "Where have you used, or where would you use, voice or audio AI, like speech-to-text, text-to-speech or voice agents?",
+    "transcript": "I've used speech-to-text to transcribe interviews and text-to-speech to turn long documents into audio for a colleague with dyslexia, which made a real difference. I'd like to build a voice agent for appointment booking next. I know accents, background noise and names can trip up transcription, so I'd test with real recordings.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q6",
+    "dimension_id": "responsible",
+    "question": "What do you think about before putting company or customer data into an AI tool?",
+    "transcript": "Whether the data is personal or confidential, what our policy and the customer's contract allow, and whether the provider keeps or trains on it. I redact names and contact details before sending anything, use approved tools only, and ask for consent before recording anyone.",
+    "source": "typed"
+  },
+  {
+    "question_id": "q7",
+    "dimension_id": "customer_value",
+    "question": "A customer's engineering team wants to add voice AI to their product but doesn't know where to start. How would you approach the first two weeks with them?",
+    "transcript": "Week one I'd run discovery with their engineers and product owner to find one high-value use case, like handling simple support calls, and agree how we'd measure success, for example resolution rate and time saved. Week two I'd build a small pilot with them on their stack, test it on real calls, and share the results and a plan for next steps with their team lead in plain language.",
+    "source": "typed"
+  },
+  {
+    "question_id": "followup",
+    "dimension_id": "building",
+    "question": "Follow-up question",
+    "transcript": "I'd start with a thin end-to-end slice: one endpoint, one model call, logging of latency and cost per request, and a handful of evals, then iterate from there.",
+    "source": "typed"
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "id": "practitioner",
+  "description": "Backend developer who uses AI daily and has built one internal tool. Unpolished spoken style with fillers, to check that substance beats polish.",
+  "style": "plain spoken",
+  "expected_band": "Good fit",
+  "expected": {
+    "breadth": [
+      3,
+      4
+    ],
+    "prompting": [
+      3,
+      4
+    ],
+    "verification": [
+      3,
+      4
+    ],
+    "building": [
+      3,
+      4
+    ],
+    "voice_audio": [
+      2,
+      3
+    ],
+    "responsible": [
+      2,
+      3
+    ],
+    "customer_value": [
+      3,
+      4
+    ]
+  },
+  "answers": [
+    {
+      "question_id": "q1",
+      "dimension_id": "breadth",
+      "question": "Walk me through the AI tools you use in a typical week. What do you use each one for?",
+      "transcript": "Um, so, day to day it's Copilot in my editor for, like, boilerplate and tests. Then Claude when I need to think something through, like a design or a long doc. And ChatGPT on my phone for random stuff. I tried Gemini for a bit but didn't really stick with it.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q2",
+      "dimension_id": "prompting",
+      "question": "Tell me about a recent time you got a really good result from an AI model. What did you give it, and how did you get there?",
+      "transcript": "Yeah so last week I had to write a migration script for some old data. I pasted in the table schema and a few example rows, and told it what the new format should look like. First go it got the date format wrong, so I gave it an example of the right output and said only use the standard library, and second go it was basically there.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q3",
+      "dimension_id": "verification",
+      "question": "How do you decide whether you can trust an AI's output? Tell me about a time it got something wrong.",
+      "transcript": "For code I just run it, and I write a test if it's anything that matters. For facts I check the docs. It made up a config flag for our message queue once, which looked totally real, wasted like an hour, so now I always check against the official docs before I trust anything like that.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q4",
+      "dimension_id": "building",
+      "question": "Have you built anything on top of an AI API, such as a script, an integration or an agent? What was it, how did you design it, and what was hard?",
+      "transcript": "Yeah, I built a little Slack bot for our team. When there's an incident it pulls the channel messages and calls an LLM API to write a summary. It's Python, runs as a small service. Hard bit was the threads being too long, so I had to chunk them and summarise in two passes, and add retries because the API would time out sometimes. Haven't really measured how good the summaries are, people just seem to like it.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q5",
+      "dimension_id": "voice_audio",
+      "question": "Where have you used, or where would you use, voice or audio AI, like speech-to-text, text-to-speech or voice agents?",
+      "transcript": "I use transcription for meetings, the auto notes thing. I've played with a text-to-speech API once just to hear what it sounded like. I think voice would be great for, like, support lines, where people don't want to type, but I haven't built one.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q6",
+      "dimension_id": "responsible",
+      "question": "What do you think about before putting company or customer data into an AI tool?",
+      "transcript": "I check if it's on the approved list at work first. Um, I don't paste customer data into free tools, and if I need to use real logs I strip out names and emails first. I know we've got a policy but honestly I haven't read all of it.",
+      "source": "voice"
+    },
+    {
+      "question_id": "q7",
+      "dimension_id": "customer_value",
+      "question": "A customer's engineering team wants to add voice AI to their product but doesn't know where to start. How would you approach the first two weeks with them?",
+      "transcript": "So I'd start by sitting with them and working out what they actually want voice for, like which user problem. Then pick one small flow, maybe one call type, and build a quick prototype in the first week with their engineers. Second week, test it with a few real users and see if it's actually better, like, does it save time. Then decide with them if it's worth going further.",
+      "source": "voice"
+    },
+    {
+      "question_id": "followup",
+      "dimension_id": "customer_value",
+      "question": "How would you show a customer's leadership that a voice pilot had actually worked?",
+      "transcript": "Um, I'd agree a number with them up front, like average handling time or how many calls get sorted without a person. Then measure before and after the pilot and show them that, plus a few real call examples so it's not just numbers.",
+      "source": "voice"
+    }
+  ]
+}

@@ -124,7 +124,12 @@ def rubric_text() -> str:
 
 
 def role_text(role: RoleProfile) -> str:
-    lines = [f"Target role: {role.title}", role.summary, "Requirements (weight 1-3, target 1-5):"]
+    lines = [
+        f"Target role: {role.title}",
+        role.summary,
+        "Requirements (weight: 3 high, 2 medium, 1 low importance; target: the score the role "
+        "expects, 1-5):",
+    ]
     for r in sorted(role.requirements, key=lambda r: -r.weight):
         name = DIMENSIONS[r.dimension_id]["name"]
         lines.append(f"- {r.dimension_id} ({name}): weight {r.weight}, target {r.target}. {r.why}")
