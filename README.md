@@ -5,7 +5,7 @@ Deployed Engineer role: you get a fit percentage, your gaps, and a development p
 
 ![The report screen: fit percentage, radar chart of you against the role, gaps and development plan](docs/screenshot.png)
 
-<!-- Screenshot placeholder: add docs/screenshot.png -->
+*The report for the fictional sample answers, assessed by Claude Haiku 5.5.*
 
 The result is **indicative, for self-development**. It comes from a short self-reported
 interview and is not a hiring assessment; the report says so.
@@ -74,20 +74,7 @@ Other commands: `make check` (lint, format, tests, secret scan), `make audit`
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    B["Browser<br/>static HTML/JS, Chart.js"] -->|"fetch /api/*"| API["FastAPI on 127.0.0.1"]
-    API --> V["voice/"]
-    V --> EL["ElevenLabs<br/>TTS eleven_flash_v2_5 · STT scribe_v2"]
-    V --> VM["Mock voice"]
-    API --> L["llm/ (+ in-memory response cache)"]
-    L --> C["Claude API<br/>structured JSON output"]
-    L --> O["Ollama on loopback<br/>qwen2.5:1.5b, JSON schema format"]
-    L --> M["Mock<br/>keyword scoring"]
-    API --> R["rubric.py<br/>dimensions, questions, prompts"]
-    API --> RP["roles/elevenlabs_fde.json<br/>weights, targets, reasons"]
-    API --> F["fit.py<br/>deterministic role fit"]
-```
+![Architecture: the browser calls a FastAPI server on 127.0.0.1; voice goes to ElevenLabs or a mock; scoring goes to Claude, a local Ollama model or a mock; rubric, role profile and fit run locally. Only ElevenLabs and Claude are outside the laptop.](docs/architecture.svg)
 
 Key design decisions:
 

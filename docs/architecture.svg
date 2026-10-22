@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="490" viewBox="0 0 1000 490" font-family="Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">AI Role Fitter architecture</title>
+  <desc id="d">The browser calls a FastAPI server on 127.0.0.1. The server's voice module uses ElevenLabs or a mock; its LLM module uses the Claude API, a local Ollama model or a mock. Rubric, role profile and fit calculation run locally. Only ElevenLabs and Claude are outside the laptop.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+    <style>
+      .box { fill: #f4f4f2; stroke: #8a8a85; stroke-width: 1.2; }
+      .core { fill: #eef2fd; stroke: #2f5bea; stroke-width: 1.2; }
+      .t { font-size: 14px; font-weight: bold; fill: #1c1c1a; text-anchor: middle; }
+      .s { font-size: 11.5px; fill: #5f5f5a; text-anchor: middle; }
+      .e { fill: none; stroke: #555; stroke-width: 1.4; marker-end: url(#a); }
+      .lbl { font-size: 11px; fill: #5f5f5a; }
+      .zone { fill: none; stroke-width: 1.5; stroke-dasharray: 6 5; }
+      .zt { font-size: 12px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="490" fill="#ffffff"/>
+
+  <!-- Zones: what stays on the laptop vs what goes to the cloud -->
+  <rect class="zone" x="10" y="22" width="760" height="458" rx="10" stroke="#2f5bea"/>
+  <text class="zt" x="24" y="16" fill="#2f5bea">Your laptop: everything on 127.0.0.1</text>
+  <rect class="zone" x="788" y="22" width="202" height="230" rx="10" stroke="#9a5b00"/>
+  <text class="zt" x="790" y="16" fill="#9a5b00">Cloud APIs (keys stay server-side)</text>
+
+  <!-- Browser and server -->
+  <rect class="box" x="30" y="206" width="150" height="64" rx="8"/>
+  <text class="t" x="105" y="233">Browser</text>
+  <text class="s" x="105" y="252">HTML/JS + Chart.js</text>
+
+  <rect class="core" x="230" y="206" width="150" height="64" rx="8"/>
+  <text class="t" x="305" y="233">FastAPI</text>
+  <text class="s" x="305" y="252">Host + Origin checks</text>
+
+  <path class="e" d="M180,238 L228,238"/>
+  <text class="lbl" x="186" y="230">/api/*</text>
+
+  <!-- Trunk from the server to its modules -->
+  <path d="M380,238 L405,238" fill="none" stroke="#555" stroke-width="1.4"/>
+  <path d="M405,88 L405,443" fill="none" stroke="#555" stroke-width="1.4"/>
+  <path class="e" d="M405,88 L428,88"/>
+  <path class="e" d="M405,218 L428,218"/>
+  <path class="e" d="M405,343 L428,343"/>
+  <path class="e" d="M405,393 L428,393"/>
+  <path class="e" d="M405,443 L428,443"/>
+
+  <!-- Modules -->
+  <rect class="core" x="430" y="60" width="150" height="56" rx="8"/>
+  <text class="t" x="505" y="84">voice/</text>
+  <text class="s" x="505" y="102">question audio cache</text>
+
+  <rect class="core" x="430" y="190" width="150" height="56" rx="8"/>
+  <text class="t" x="505" y="214">llm/</text>
+  <text class="s" x="505" y="232">response cache</text>
+
+  <rect class="core" x="430" y="323" width="150" height="40" rx="8"/>
+  <text class="t" x="505" y="348">rubric.py + prompts</text>
+  <rect class="core" x="430" y="373" width="150" height="40" rx="8"/>
+  <text class="s" x="505" y="393" font-weight="bold" fill="#1c1c1a">roles/elevenlabs_fde.json</text>
+  <text class="s" x="505" y="406">weights · targets</text>
+  <rect class="core" x="430" y="423" width="150" height="40" rx="8"/>
+  <text class="t" x="505" y="448">fit.py: role fit</text>
+
+  <!-- Local providers -->
+  <rect class="box" x="610" y="98" width="140" height="40" rx="8"/>
+  <text class="t" x="680" y="123">Mock voice</text>
+  <rect class="box" x="610" y="190" width="140" height="56" rx="8"/>
+  <text class="t" x="680" y="214">Ollama (local)</text>
+  <text class="s" x="680" y="232">qwen2.5:1.5b</text>
+  <rect class="box" x="610" y="262" width="140" height="40" rx="8"/>
+  <text class="t" x="680" y="287">Mock LLM</text>
+
+  <!-- Cloud providers -->
+  <rect class="box" x="808" y="50" width="165" height="56" rx="8"/>
+  <text class="t" x="890" y="74">ElevenLabs</text>
+  <text class="s" x="890" y="92">Scribe v2 · Flash v2.5</text>
+  <rect class="box" x="808" y="146" width="165" height="56" rx="8"/>
+  <text class="t" x="890" y="170">Claude API</text>
+  <text class="s" x="890" y="188">Haiku 5.5 (default)</text>
+
+  <!-- Module to provider edges -->
+  <path class="e" d="M580,78 L806,78"/>
+  <path class="e" d="M580,100 L594,100 L594,118 L608,118"/>
+  <path class="e" d="M580,202 L596,202 L596,174 L806,174"/>
+  <path class="e" d="M580,218 L608,218"/>
+  <path class="e" d="M580,236 L596,236 L596,282 L608,282"/>
+</svg>
