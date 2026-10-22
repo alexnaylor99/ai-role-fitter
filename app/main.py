@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import time
+import uuid
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -182,8 +183,11 @@ async def tts(body: TTSRequest) -> Response:
     if not audio:
         return Response(status_code=204)
     if cache_path is not None:
+        # Write then rename, so a crash or a parallel request never serves a partial file.
         TTS_CACHE_DIR.mkdir(exist_ok=True)
-        cache_path.write_bytes(audio)
+        tmp_path = cache_path.with_suffix(f".{uuid.uuid4().hex}.tmp")
+        tmp_path.write_bytes(audio)
+        tmp_path.replace(cache_path)
     return Response(content=audio, media_type="audio/mpeg", headers={"X-TTS-Cache": "miss"})
 
 
