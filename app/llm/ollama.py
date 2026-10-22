@@ -24,7 +24,7 @@ from app.contracts import (
     RoleProfile,
 )
 from app.llm.evidence import guard_evidence
-from app.rubric import build_assess_prompt, rule_based_follow_up
+from app.rubric import build_assess_prompt, rule_based_follow_up, top_up_recommendations
 
 OPTIONS: dict[str, Any] = {"temperature": 0.2, "num_ctx": 8192}
 
@@ -73,7 +73,7 @@ ASSESSMENT_SCHEMA: dict[str, Any] = {
 _MAX_ITEMS = {"strengths": 3, "gaps": 3, "recommendations": 5}
 
 
-def _repair(data: Any) -> Any:
+def _repair(data: Any, role: RoleProfile | None = None) -> Any:
     """Fix the slips a small model makes, before Pydantic validates. Each repair is noted."""
     if not isinstance(data, dict):
         return data
@@ -114,6 +114,13 @@ def _repair(data: Any) -> Any:
     for key, limit in _MAX_ITEMS.items():
         if isinstance(data.get(key), list):
             data[key] = data[key][:limit]
+
+    # Repair 5: a person at or above most targets can leave the model with fewer than 3
+    # recommendations (it is told to skip met targets), and a retry repeats the same
+    # judgement. Top up with ready-written recommendations rather than reject the report.
+    if role is not None and isinstance(data.get("recommendations"), list):
+        scores = {d["dimension_id"]: d["score"] for d in data["dimensions"]}
+        data["recommendations"] = top_up_recommendations(data["recommendations"], scores, role)
     return data
 
 
@@ -154,7 +161,7 @@ class OllamaLLM:
             body = await self._chat(system, message, usage, schema=ASSESSMENT_SCHEMA)
             content = body["message"]["content"]
             try:
-                assessment = Assessment.model_validate(_repair(json.loads(content)))
+                assessment = Assessment.model_validate(_repair(json.loads(content), role))
                 break
             except (json.JSONDecodeError, ValidationError) as exc:
                 if attempt == 1:

@@ -71,3 +71,19 @@ def test_rule_based_follow_up_picks_thinnest_high_weight_answer(sample_answers):
     question, dimension = rule_based_follow_up(answers, ROLE)
     assert dimension == "customer_value"
     assert 0 < len(question.split()) <= 40
+
+
+def test_top_up_recommendations_prefers_biggest_role_gap():
+    from app.rubric import top_up_recommendations
+
+    scores = {d: 5 for d in DIMENSION_IDS} | {"building": 2, "breadth": 2}
+    recs = top_up_recommendations([], scores, ROLE)
+    assert [r["dimension_id"] for r in recs] == ["building", "breadth", "customer_value"]
+    # third: everything else is at 5, so a stretch on the highest-weight dimension left
+
+
+def test_top_up_leaves_three_or_more_alone():
+    from app.rubric import top_up_recommendations
+
+    recs = [{"dimension_id": d} for d in ("building", "prompting", "breadth")]
+    assert top_up_recommendations(recs, {}, ROLE) == recs

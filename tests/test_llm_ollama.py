@@ -221,3 +221,23 @@ async def test_reachable_false_when_model_missing_or_server_down():
 
     route.mock(side_effect=httpx.ConnectError("refused"))
     assert await _llm().reachable() is False
+
+
+@respx.mock
+async def test_too_few_recommendations_are_topped_up_not_rejected(sample_answers):
+    # Real case: an expert at target on most dimensions got only 2 recommendations,
+    # and the retry repeated it. The report should be kept and topped up to 3.
+    data = _assessment()
+    for d in data["dimensions"]:
+        d["score"] = 5 if d["dimension_id"] != "customer_value" else 3
+    data["recommendations"] = data["recommendations"][:2]
+    data["recommendations"][0]["dimension_id"] = "customer_value"
+    data["recommendations"][1]["dimension_id"] = "customer_value"
+    route = respx.post(CHAT).mock(return_value=_reply(data))
+
+    assessment, _ = await _llm().assess(sample_answers, ROLE)
+
+    assert route.call_count == 1  # no wasted retry
+    assert len(assessment.recommendations) == 3
+    added = assessment.recommendations[2]
+    assert added.dimension_id == "building"  # new dimension: the role's top weight

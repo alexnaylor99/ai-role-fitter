@@ -31,6 +31,73 @@ FOLLOW_UP_QUESTIONS: dict[str, str] = {
 }
 
 
+# Ready-written recommendations (title, why, first step): used by the mock, and to top up
+# a local-model report that gives fewer than the 3 recommendations the contract needs.
+RECOMMENDATION_TEMPLATES: dict[str, tuple[str, str, str]] = {
+    "breadth": ("Compare three models on one task",
+                "FDEs need to explain why one tool fits a customer better than another.",
+                "Run the same real task through three models and note the differences."),
+    "prompting": ("Build a reusable prompt template",
+                  "Strong prompts make customer solutions reliable and repeatable.",
+                  "Write a template with role, context, examples and output format; test it."),
+    "verification": ("Add a verification habit",
+                     "Customer solutions must be trustworthy in high-stakes settings.",
+                     "Write a 5-item checklist for checking AI output and use it all week."),
+    "building": ("Ship a small API integration",
+                 "The role is hands-on Python and API integration for customers.",
+                 "Build a Python script that calls an AI API end to end and handles errors."),
+    "voice_audio": ("Build a voice prototype",
+                    "The product is voice and audio AI; hands-on experience matters.",
+                    "Use a speech-to-text and text-to-speech API to make a tiny voice demo."),
+    "responsible": ("Write a one-page data policy",
+                    "Enterprise customers expect clear answers on data handling.",
+                    "Draft what data you would and wouldn't send to an AI tool, and why."),
+    "customer_value": ("Run a mock discovery session",
+                       "FDEs own delivery end to end with customers.",
+                       "Write five discovery questions and a two-week pilot plan for a use case."),
+}  # fmt: skip
+
+
+def top_up_recommendations(
+    recommendations: list[dict], scores: dict[str, int], role: RoleProfile, minimum: int = 3
+) -> list[dict]:
+    """Add ready-written recommendations until there are `minimum`. Picks dimensions not
+    already covered: biggest role gap first (weight x gap), then the most important
+    dimension with the most room to grow (weight x (5 - score)) for someone at target."""
+    recs = list(recommendations)
+    covered = {r.get("dimension_id") for r in recs if isinstance(r, dict)}
+    ranked = sorted(
+        role.requirements,
+        key=lambda r: (
+            -r.weight * max(r.target - scores.get(r.dimension_id, 1), 0),
+            -r.weight * (5 - scores.get(r.dimension_id, 1)),
+            -r.weight,
+            DIMENSION_IDS.index(r.dimension_id),
+        ),
+    )
+    # First pass: dimensions with room to grow. Second pass (someone at 5 almost
+    # everywhere): stretch recommendations on the role's most important dimensions.
+    candidates = [r for r in ranked if scores.get(r.dimension_id, 1) < 5]
+    candidates += [r for r in ranked if r not in candidates]
+    for req in candidates:
+        if len(recs) >= minimum:
+            break
+        if req.dimension_id in covered:
+            continue
+        title, why, first_step = RECOMMENDATION_TEMPLATES[req.dimension_id]
+        recs.append(
+            {
+                "title": title,
+                "why": why,
+                "first_step": first_step,
+                "dimension_id": req.dimension_id,
+                "effort": "low" if req.weight == 1 else "medium",
+            }
+        )
+        covered.add(req.dimension_id)
+    return recs
+
+
 def rule_based_follow_up(answers: list[Answer], role: RoleProfile) -> tuple[str, DimensionId]:
     """Pick the follow-up without an LLM: the role's most important dimension (highest
     weight) where the answer was thinnest (fewest words). Instant and deterministic."""

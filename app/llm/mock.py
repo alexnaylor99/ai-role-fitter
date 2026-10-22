@@ -15,7 +15,7 @@ from app.contracts import (
     Recommendation,
     RoleProfile,
 )
-from app.rubric import DIMENSIONS, FOLLOW_UP_QUESTIONS
+from app.rubric import DIMENSIONS, FOLLOW_UP_QUESTIONS, RECOMMENDATION_TEMPLATES
 
 KEYWORDS: dict[str, list[str]] = {
     "breadth": ["chatgpt", "claude", "gemini", "copilot", "cursor", "perplexity", "llama",
@@ -32,31 +32,6 @@ KEYWORDS: dict[str, list[str]] = {
                     "confidential", "security", "retention"],
     "customer_value": ["customer", "stakeholder", "pilot", "discovery", "use case", "roi",
                        "metric", "workshop", "success", "scope"],
-}  # fmt: skip
-
-
-RECOMMENDATIONS: dict[str, tuple[str, str, str]] = {
-    "breadth": ("Compare three models on one task",
-                "FDEs need to explain why one tool fits a customer better than another.",
-                "Run the same real task through three models and note the differences."),
-    "prompting": ("Build a reusable prompt template",
-                  "Strong prompts make customer solutions reliable and repeatable.",
-                  "Write a template with role, context, examples and output format; test it."),
-    "verification": ("Add a verification habit",
-                     "Customer solutions must be trustworthy in high-stakes settings.",
-                     "Write a 5-item checklist for checking AI output and use it all week."),
-    "building": ("Ship a small API integration",
-                 "The role is hands-on Python and API integration for customers.",
-                 "Build a Python script that calls an AI API end to end and handles errors."),
-    "voice_audio": ("Build a voice prototype",
-                    "The product is voice and audio AI; hands-on experience matters.",
-                    "Use a speech-to-text and text-to-speech API to make a tiny voice demo."),
-    "responsible": ("Write a one-page data policy",
-                    "Enterprise customers expect clear answers on data handling.",
-                    "Draft what data you would and wouldn't send to an AI tool, and why."),
-    "customer_value": ("Run a mock discovery session",
-                       "FDEs own delivery end to end with customers.",
-                       "Write five discovery questions and a two-week pilot plan for a use case."),
 }  # fmt: skip
 
 
@@ -127,9 +102,9 @@ class MockLLM:
         )
         recs = [
             Recommendation(
-                title=RECOMMENDATIONS[r.dimension_id][0],
-                why=RECOMMENDATIONS[r.dimension_id][1],
-                first_step=RECOMMENDATIONS[r.dimension_id][2],
+                title=RECOMMENDATION_TEMPLATES[r.dimension_id][0],
+                why=RECOMMENDATION_TEMPLATES[r.dimension_id][1],
+                first_step=RECOMMENDATION_TEMPLATES[r.dimension_id][2],
                 dimension_id=r.dimension_id,
                 effort="low" if r.weight == 1 else "medium",
             )
