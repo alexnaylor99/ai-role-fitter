@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable
 from typing import Any
 
 import anthropic
@@ -20,7 +21,7 @@ from app.contracts import (
     RoleProfile,
 )
 from app.llm.evidence import guard_evidence
-from app.rubric import build_assess_prompt, build_follow_up_prompt
+from app.rubric import build_assess_prompt, build_follow_up_prompt, top_up_recommendations
 
 # Server-side refusal fallbacks: `fallbacks: "default"` is gated by this beta header.
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
@@ -97,6 +98,19 @@ class _FollowUp(BaseModel):
         return v
 
 
+def _top_up(data: Any, role: RoleProfile) -> Any:
+    """Same safety net as local mode: someone at target almost everywhere can get fewer than
+    the 3 recommendations the contract needs, and a retry repeats that judgement."""
+    try:
+        scores = {d["dimension_id"]: int(d["score"]) for d in data["dimensions"]}
+        recs = data["recommendations"]
+    except (KeyError, TypeError, ValueError):
+        return data  # let validation report the real problem
+    if isinstance(recs, list) and len(recs) < 3:
+        data = {**data, "recommendations": top_up_recommendations(recs, scores, role)}
+    return data
+
+
 class ClaudeLLM:
     name = "claude"
 
@@ -125,6 +139,7 @@ class ClaudeLLM:
             Assessment,
             effort="medium",
             max_tokens=ASSESS_MAX_TOKENS,
+            prepare=lambda data: _top_up(data, role),
         )
         return guard_evidence(result, answers), usage
 
@@ -137,6 +152,7 @@ class ClaudeLLM:
         *,
         effort: str,
         max_tokens: int,
+        prepare: Callable[[Any], Any] | None = None,
     ) -> tuple[T, LLMUsage]:
         """Call Claude with a JSON schema; validate with Pydantic; retry once if invalid."""
         start = time.perf_counter()
@@ -144,7 +160,8 @@ class ClaudeLLM:
         for attempt in range(2):
             text = await self._call(system, user, schema, effort, max_tokens, usage)
             try:
-                result = model_cls.model_validate(json.loads(text))
+                data = json.loads(text)
+                result = model_cls.model_validate(prepare(data) if prepare else data)
                 break
             except (json.JSONDecodeError, ValidationError) as exc:
                 if attempt == 1:

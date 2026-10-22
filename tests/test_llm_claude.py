@@ -217,3 +217,12 @@ async def test_follow_up_over_40_words_is_retried(sample_answers):
     assert question == "What did you build?"
     assert dim is None
     assert len(api.requests) == 2
+
+
+async def test_too_few_recommendations_are_topped_up_not_rejected(sample_answers):
+    data = json.loads(_assessment_json())
+    data["recommendations"] = data["recommendations"][:2]
+    api = FakeAPI(ok(json.dumps(data)))
+    assessment, _ = await make_llm(api).assess(sample_answers, ROLE)
+    assert len(api.requests) == 1  # no wasted retry
+    assert len(assessment.recommendations) == 3
