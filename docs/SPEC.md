@@ -395,7 +395,7 @@ Browser (static HTML/JS, Chart.js)
    ▼
 FastAPI (127.0.0.1:8000)
    ├── voice/ ── ElevenLabs   (TTS: eleven_flash_v2_5 · STT: scribe_v2)   | mock
-   ├── llm/   ── Claude API   (claude-opus-5-5, structured JSON output)
+   ├── llm/   ── Claude API   (claude-haiku-5-5 by default, structured JSON output)
    │          ── Ollama        (127.0.0.1:11434, qwen2.5:1.5b, JSON schema format)
    │          ── Mock          (deterministic keyword scoring)
    ├── rubric.py  (dimensions, questions, levels, prompt loading)
@@ -424,7 +424,7 @@ FastAPI (127.0.0.1:8000)
 |---|---|---|
 | `LLM_PROVIDER` | `claude` | `claude` / `ollama` / `mock` |
 | `ANTHROPIC_API_KEY` | — | Required for Claude mode |
-| `CLAUDE_MODEL` | `claude-opus-5-5` | Alex's `.env` uses `claude-haiku-5-5` (~$0.002 per interview) |
+| `CLAUDE_MODEL` | `claude-haiku-5-5` | ~$0.002 per interview; the eval was measured on it. `claude-opus-5-5` also works (~40× the price) |
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Must be a loopback host |
 | `OLLAMA_MODEL` | `qwen2.5:1.5b` | |
 | `OLLAMA_TIMEOUT_S` | `360` | Slow on the Intel CPU: one report took ~184s |

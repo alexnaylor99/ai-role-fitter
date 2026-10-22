@@ -104,7 +104,7 @@ async def test_assess_valid_output(sample_answers):
     assert usage.duration_ms >= 0
 
     body = api.body()
-    assert body["model"] == "claude-opus-5-5"
+    assert body["model"] == "claude-haiku-5-5"
     assert body["output_config"]["effort"] == "medium"
     assert body["output_config"]["format"]["type"] == "json_schema"
     assert body["output_config"]["format"]["schema"]["additionalProperties"] is False

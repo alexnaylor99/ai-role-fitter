@@ -49,8 +49,8 @@ cp .env.example .env
 ```
 
 Add `ANTHROPIC_API_KEY` and `ELEVENLABS_API_KEY` to `.env` (use dedicated keys with a
-spend limit), then run `make dev`. The default model is `claude-opus-5-5`; set
-`CLAUDE_MODEL=claude-haiku-5-5` for the measured figures below. Without an ElevenLabs
+spend limit), then run `make dev`. The default model is `claude-haiku-5-5` (all figures below
+were measured on it); set `CLAUDE_MODEL=claude-opus-5-5` for Claude's most capable model. Without an ElevenLabs
 key, voice is switched off and answers are typed.
 
 **(c) Local privacy mode: Ollama.** Install [Ollama v0.12.3](https://github.com/ollama/ollama/releases/tag/v0.12.3),
@@ -200,8 +200,9 @@ How cost is kept down:
 - **ElevenLabs:** audio for the 7 fixed questions is cached in `tts_cache/`, so after the
   first run only the follow-up question and transcription use credits.
 
-The report footer shows timings, provider, model, cache use and estimated cost. The
-default `claude-opus-5-5` is not measured here and costs more per token than Haiku.
+The report footer shows timings, provider, model, cache use and estimated cost. Opus
+(`CLAUDE_MODEL=claude-opus-5-5`) is supported but not measured here; it costs about 40×
+more per token than Haiku.
 
 ## Roadmap
 

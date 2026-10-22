@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     llm_provider: ProviderName = "claude"
     anthropic_api_key: SecretStr | None = None
-    claude_model: str = "claude-opus-5-5"
+    claude_model: str = "claude-haiku-5-5"  # measured: 20/21 in eval, ~$0.002 per interview
 
     ollama_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "qwen2.5:1.5b"
