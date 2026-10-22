@@ -107,10 +107,15 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
     )
 
 
-@app.exception_handler(Exception)
-async def _unexpected(_: Request, exc: Exception) -> JSONResponse:
-    log.error("Unexpected error: %s", type(exc).__name__)  # type only: messages may hold data
-    return _error(500, "internal_error", "Something went wrong. Please try again.")
+@app.middleware("http")
+async def _unexpected(request: Request, call_next):
+    # A middleware, not an exception handler: Starlette re-raises after running a handler
+    # for Exception, so uvicorn would log the full traceback and message anyway.
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        log.error("Unexpected error: %s", type(exc).__name__)  # type only: may hold data
+        return _error(500, "internal_error", "Something went wrong. Please try again.")
 
 
 # --- Routes ------------------------------------------------------------------------

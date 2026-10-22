@@ -213,3 +213,15 @@ def test_same_origin_write_allowed(client, sample_answers):
         json={"answers": _answers(sample_answers)[:7]},
     )
     assert res.status_code == 200
+
+
+def test_unexpected_error_is_not_re_raised_or_logged_in_full(client, monkeypatch, caplog):
+    # TestClient re-raises whatever reaches the server, as uvicorn would log it.
+    def boom():
+        raise RuntimeError("a transcript that must not reach the logs")
+
+    monkeypatch.setattr("app.main.get_settings", boom)
+    res = client.get("/api/health")
+    assert res.status_code == 500
+    assert res.json()["error"]["code"] == "internal_error"
+    assert "transcript" not in caplog.text
