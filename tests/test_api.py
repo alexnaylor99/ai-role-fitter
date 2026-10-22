@@ -225,3 +225,11 @@ def test_unexpected_error_is_not_re_raised_or_logged_in_full(client, monkeypatch
     assert res.status_code == 500
     assert res.json()["error"]["code"] == "internal_error"
     assert "transcript" not in caplog.text
+
+
+def test_security_headers_on_frontend(client):
+    res = client.get("/")
+    csp = res.headers["content-security-policy"]
+    assert "script-src 'self' https://cdnjs.cloudflare.com;" in csp
+    assert "frame-ancestors 'none'" in csp
+    assert res.headers["x-content-type-options"] == "nosniff"

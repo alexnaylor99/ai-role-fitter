@@ -62,6 +62,28 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="AI Role Fitter", lifespan=lifespan)
 
 
+# Defence in depth for the report page, which renders LLM output: only our own scripts plus
+# Chart.js from cdnjs (also pinned by SRI), no framing, no sniffing.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; "
+        "style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; "
+        "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; "
+        "frame-ancestors 'none'"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    response = await call_next(request)
+    for name, value in SECURITY_HEADERS.items():
+        response.headers.setdefault(name, value)
+    return response
+
+
 # --- Errors: always {error: {code, message}}, never keys or stack traces -------------
 
 
