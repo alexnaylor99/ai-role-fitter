@@ -28,6 +28,18 @@ from app.rubric import build_assess_prompt, rule_based_follow_up, top_up_recomme
 
 OPTIONS: dict[str, Any] = {"temperature": 0.2, "num_ctx": 8192}
 
+# On a 2-core CPU the local model writes ~10-15 tokens/s, and how much it writes varies a
+# lot (850 to 3,000+ tokens for the same answers), so a long reply could run past the
+# timeout. Local mode therefore asks for a shorter report and caps its length.
+ASSESS_MAX_OUTPUT_TOKENS = 1600  # ~2-3 min on Alex's laptop; a full report needs ~900-1300
+LOCAL_BREVITY = """
+Keep the whole reply short; it is generated on a slow laptop:
+- rationale: at most 20 words;
+- summary: at most 2 sentences;
+- each strength and gap: at most 12 words;
+- each recommendation: why and first_step at most 20 words each.
+"""
+
 _STRING = {"type": "string"}
 _DIMENSION = {"type": "string", "enum": list(DIMENSION_IDS)}
 
@@ -154,11 +166,18 @@ class OllamaLLM:
 
     async def assess(self, answers: list[Answer], role: RoleProfile) -> tuple[Assessment, LLMUsage]:
         system, user = build_assess_prompt(answers, role)
+        system += LOCAL_BREVITY
         start = time.perf_counter()
         usage = LLMUsage(input_tokens=0, output_tokens=0)
         message = user
         for attempt in range(2):
-            body = await self._chat(system, message, usage, schema=ASSESSMENT_SCHEMA)
+            body = await self._chat(
+                system,
+                message,
+                usage,
+                schema=ASSESSMENT_SCHEMA,
+                extra={"num_predict": ASSESS_MAX_OUTPUT_TOKENS},
+            )
             content = body["message"]["content"]
             try:
                 assessment = Assessment.model_validate(_repair(json.loads(content), role))
@@ -170,9 +189,11 @@ class OllamaLLM:
                         "The local model returned an answer in the wrong format twice. "
                         "Please try again.",
                     ) from exc
+                cut_off = body.get("done_reason") == "length"
+                problem = "it was too long and got cut off" if cut_off else str(exc)[:600]
                 message = (
-                    f"{user}\n\nYour previous reply was not valid: {str(exc)[:600]}\n"
-                    "Reply again with corrected JSON only."
+                    f"{user}\n\nYour previous reply was not valid: {problem}\n"
+                    "Reply again with corrected JSON only, and keep every field brief."
                 )
         usage.duration_ms = int((time.perf_counter() - start) * 1000)
         return guard_evidence(assessment, answers), usage

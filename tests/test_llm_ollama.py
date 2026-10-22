@@ -69,7 +69,7 @@ async def test_assess_valid_output(sample_answers):
     body = json.loads(route.calls[0].request.content)
     assert body["stream"] is False
     assert body["model"] == "qwen2.5:1.5b"
-    assert body["options"] == {"temperature": 0.2, "num_ctx": 8192}
+    assert body["options"] == {"temperature": 0.2, "num_ctx": 8192, "num_predict": 1600}
     assert body["format"]["required"][0] == "summary"
     assert body["messages"][0]["role"] == "system"
     assert ROLE.title in body["messages"][0]["content"]
@@ -241,3 +241,25 @@ async def test_too_few_recommendations_are_topped_up_not_rejected(sample_answers
     assert len(assessment.recommendations) == 3
     added = assessment.recommendations[2]
     assert added.dimension_id == "building"  # new dimension: the role's top weight
+
+
+@respx.mock
+async def test_assess_asks_for_brevity_and_caps_output(sample_answers):
+    from app.llm.ollama import ASSESS_MAX_OUTPUT_TOKENS
+
+    route = respx.post(CHAT).mock(return_value=_reply(_assessment()))
+    await _llm().assess(sample_answers, ROLE)
+    body = json.loads(route.calls[0].request.content)
+    assert body["options"]["num_predict"] == ASSESS_MAX_OUTPUT_TOKENS
+    assert "at most 20 words" in body["messages"][0]["content"]
+
+
+@respx.mock
+async def test_cut_off_reply_is_retried_with_a_shorter_request(sample_answers):
+    route = respx.post(CHAT).mock(
+        side_effect=[_reply('{"summary": "trunc', done_reason="length"), _reply(_assessment())]
+    )
+    assessment, _ = await _llm().assess(sample_answers, ROLE)
+    assert len(assessment.dimensions) == 7
+    retry = json.loads(route.calls[1].request.content)["messages"][-1]["content"]
+    assert "too long and got cut off" in retry

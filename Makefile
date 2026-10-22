@@ -2,7 +2,7 @@ PY := .venv/bin/python
 PROVIDER ?= mock
 PORT ?= 8000
 
-.PHONY: setup dev test lint fmt secrets check eval sample
+.PHONY: setup dev test lint fmt secrets audit lock check eval sample
 
 setup:  ## Create the virtualenv, install deps and git hooks
 	python3.12 -m venv .venv
@@ -28,7 +28,13 @@ fmt:
 secrets:  ## Scan tracked files for secrets against the baseline
 	git ls-files -z | xargs -0 .venv/bin/detect-secrets-hook --baseline .secrets.baseline
 
-check: lint test secrets  ## Everything CI runs (except gitleaks)
+audit:  ## Check the locked dependencies for known vulnerabilities
+	.venv/bin/pip-audit -r requirements.lock
+
+lock:  ## Re-pin every dependency after editing requirements.txt
+	.venv/bin/pip-compile -q --allow-unsafe --strip-extras --no-header --output-file requirements.lock requirements.txt
+
+check: lint test secrets  ## Everything CI runs (except gitleaks and audit)
 
 eval:  ## Score the eval personas: make eval PROVIDER=claude|ollama|mock
 	$(PY) -m tests.eval --provider $(PROVIDER)

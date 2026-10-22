@@ -57,6 +57,18 @@ What is kept, and where:
   CI on every push and pull request. If a key is ever committed, rotate it first; rewriting
   history does not un-leak it.
 
+## Supply chain
+
+- **Every dependency is pinned:** `requirements.lock` fixes the exact version of all 32
+  runtime packages, direct and indirect. `make setup` and CI install from it. To change a
+  dependency, edit `requirements.txt` and run `make lock`.
+- **Known vulnerabilities:** `pip-audit` checks the lock in CI on every push (`make audit`
+  locally). The last run found no known vulnerabilities.
+- **CI actions are pinned to exact commits,** not movable tags, so a compromised tag can't
+  change what runs in CI.
+- Not done: hash-checking of downloads (`pip-compile --generate-hashes`). It needs every
+  platform build of every package downloaded, which was impractical on this connection.
+
 ## Ollama v0.12.3
 
 Local mode was set up with **Ollama v0.12.3**, which is no longer receiving security

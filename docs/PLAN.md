@@ -165,6 +165,7 @@ time with no code change, because prompts are loaded from files.
 | # | Step | Who |
 |---|---|---|
 | 5.1 | Scan the full git history for secrets with gitleaks; it must be clean. | 🧭 |
+| 5.1b | ✅ Done early (from T8): exact-version lock for all dependencies, `pip-audit` in CI (clean), GitHub Actions pinned to commit SHAs. | 🧭 |
 | 5.2 | Check that no personal transcripts or audio are tracked by git. | 🧭 |
 | 5.3 | Rehearse the 5-minute demo script (SPEC §15) twice, once with Wi-Fi off for the LLM step. | 👤 |
 | 5.4 | Switch the repo from private to public on github.com. | 👤 |
