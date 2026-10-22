@@ -11,13 +11,14 @@ from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from app.config import ROOT, get_settings
+from app.config import LOOPBACK_HOSTS, ROOT, get_settings
 from app.contracts import (
     AppError,
     AssessRequest,
@@ -64,6 +65,23 @@ app = FastAPI(title="AI Role Fitter", lifespan=lifespan)
 
 def _error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}})
+
+
+# --- Local requests only ----------------------------------------------------------
+
+
+@app.middleware("http")
+async def _local_requests_only(request: Request, call_next):
+    """Refuse requests whose Host isn't this machine.
+
+    Binding to 127.0.0.1 isn't enough on its own: with DNS rebinding a web page can point
+    its own domain at 127.0.0.1 and then call this API (and spend the API keys) as if it
+    were same-origin. The browser still sends the page's domain as the Host header.
+    """
+    host = urlsplit(f"//{request.headers.get('host', '')}").hostname or ""
+    if host not in LOOPBACK_HOSTS:
+        return _error(400, "bad_host", "This app only accepts requests to 127.0.0.1.")
+    return await call_next(request)
 
 
 @app.exception_handler(AppError)

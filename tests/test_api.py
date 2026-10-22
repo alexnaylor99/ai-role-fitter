@@ -9,7 +9,7 @@ from app.voice.mock import MOCK_TRANSCRIPT
 
 @pytest.fixture
 def client():
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://127.0.0.1:8000") as c:
         yield c
 
 
@@ -175,3 +175,17 @@ def test_follow_up_audio_is_never_cached(client, counting_voice, tmp_path):
     assert res.headers["X-TTS-Cache"] == "miss"
     assert counting_voice.calls == 2
     assert not (tmp_path / "tts_cache").exists()
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1:8000", "localhost:8000", "LOCALHOST", "[::1]:8000"])
+def test_local_host_header_accepted(client, host):
+    assert client.get("/api/health", headers={"host": host}).status_code == 200
+
+
+@pytest.mark.parametrize(
+    "host", ["attacker.example", "127.0.0.1.attacker.example:8000", "0.0.0.0:8000", ""]
+)
+def test_dns_rebinding_host_refused(client, host):
+    res = client.get("/api/health", headers={"host": host})
+    assert res.status_code == 400
+    assert res.json()["error"]["code"] == "bad_host"
