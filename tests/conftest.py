@@ -27,6 +27,9 @@ def isolated_settings(monkeypatch):
 
 def _clear_caches() -> None:
     get_settings.cache_clear()
+    from app.llm import clear_response_cache
+
+    clear_response_cache()
     from app.main import get_role
 
     get_role.cache_clear()

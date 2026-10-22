@@ -194,6 +194,7 @@ priority, highest first.
 | F12 | The role profile is loaded from a JSON file (`ROLE_PROFILE`) and validated at startup. An invalid profile stops the app with a clear message. |
 | F13 | The report always shows the disclaimer: "Indicative, based on a short self-reported interview. Not a hiring assessment." |
 | F14 | Audio for the 7 fixed questions is synthesised once and cached in git-ignored `tts_cache/`; follow-up questions are never cached. Saves most of the ElevenLabs TTS credits per interview. |
+| F15 | Caching to cut API spend: (a) Claude prompt caching on the stable system prompt (rubric + role; ~2.4k tokens read at 10% price within 5 min); (b) an in-memory response cache so identical answers are never re-assessed (also saves ~3 min in local mode); never written to disk. The report footer shows cache use and cost. |
 
 ## 7. Non-functional requirements
 
@@ -423,7 +424,7 @@ FastAPI (127.0.0.1:8000)
 |---|---|---|
 | `LLM_PROVIDER` | `claude` | `claude` / `ollama` / `mock` |
 | `ANTHROPIC_API_KEY` | — | Required for Claude mode |
-| `CLAUDE_MODEL` | `claude-opus-5-5` | |
+| `CLAUDE_MODEL` | `claude-opus-5-5` | Alex's `.env` uses `claude-haiku-5-5` (~$0.002 per interview) |
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Must be a loopback host |
 | `OLLAMA_MODEL` | `qwen2.5:1.5b` | |
 | `OLLAMA_TIMEOUT_S` | `360` | Slow on the Intel CPU: one report took ~184s |

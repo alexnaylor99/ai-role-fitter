@@ -317,8 +317,14 @@
     if (m.tts_ms && m.tts_ms.length) parts.push(`text-to-speech avg ${seconds(mean(m.tts_ms))}`);
     if (typeof m.llm_assess_ms === "number") parts.push(`assessment ${seconds(m.llm_assess_ms)}`);
     if (typeof m.llm_followup_ms === "number") parts.push(`follow-up ${seconds(m.llm_followup_ms)}`);
+    if (m.cached_response) parts.push("same answers as an earlier run: reused, no new model call");
     if (report.provider === "ollama") parts.push("est. cost $0.00 (local)");
-    else if (typeof m.est_cost_usd === "number") parts.push(`est. cost $${m.est_cost_usd.toFixed(2)}`);
+    else if (typeof m.est_cost_usd === "number") {
+      // Haiku interviews cost fractions of a cent, so small amounts keep more decimals.
+      const cost = m.est_cost_usd;
+      parts.push(`est. cost $${cost >= 0.01 || cost === 0 ? cost.toFixed(2) : cost.toFixed(4)}`);
+    }
+    if (m.cache_read_tokens) parts.push(`${m.cache_read_tokens} prompt tokens from cache`);
     const when = new Date(report.generated_at);
     if (!Number.isNaN(when.getTime())) parts.push(`generated ${when.toLocaleString("en-GB")}`);
     return el("footer", "report-footer muted small", parts.join(" · "));

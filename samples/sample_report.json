@@ -1,90 +1,91 @@
 {
   "assessment": {
-    "summary": "Mock assessment for the ElevenLabs Forward Deployed Engineer role, based on keywords in your answers. Switch to Claude or the local model for a real assessment.",
+    "summary": "Your strongest fit with this role is hands-on building: you have shipped a Python integration that calls an LLM API, handles rate limits and enforces a JSON schema. Your biggest gap is turning that technical work into customer value, since your pilot plan for a voice AI customer names a metric but not how you would scope, measure and explain it to non-experts. Strengthening your prompting depth and your voice build experience would also help you deliver tailored solutions for strategic customers.",
     "dimensions": [
       {
         "dimension_id": "breadth",
-        "score": 4,
+        "score": 3,
         "evidence_quote": "Mostly Claude for writing and coding, and ChatGPT for quick questions.",
-        "rationale": "Keyword match on Tool and model breadth gives 4/5 (mock scoring)."
+        "rationale": "You use several tools for distinct purposes and have tried local models, though you do not use them day to day, so your range is practical rather than deliberate."
       },
       {
         "dimension_id": "prompting",
         "score": 3,
-        "evidence_quote": "I gave the model the transcript, told it who the audience was, and gave it an example of the format I wanted.",
-        "rationale": "Keyword match on Prompting and context gives 3/5 (mock scoring)."
+        "evidence_quote": "gave it an example of the format I wanted",
+        "rationale": "You provided context, audience, an example and a word limit, and iterated, which are good habits, but you showed only one worked example."
       },
       {
         "dimension_id": "verification",
         "score": 4,
         "evidence_quote": "If it's code I run it and write a quick test.",
-        "rationale": "Keyword match on Critical evaluation gives 4/5 (mock scoring)."
+        "rationale": "You have concrete, routine checks for code and facts, and you changed your habit after a real hallucinated API parameter, which shows strong practice."
       },
       {
         "dimension_id": "building",
-        "score": 3,
-        "evidence_quote": "I built a Python script that takes support tickets, calls an LLM API to classify them, and posts the result to Slack with a webhook.",
-        "rationale": "Keyword match on Building with AI APIs gives 3/5 (mock scoring)."
+        "score": 4,
+        "evidence_quote": "The hard part was handling rate limits and getting consistent output, so I added retries and a JSON schema.",
+        "rationale": "You shipped a working API integration and addressed reliability problems concretely, though you did not mention evals, latency or cost."
       },
       {
         "dimension_id": "voice_audio",
         "score": 3,
         "evidence_quote": "I've used speech-to-text to transcribe meetings.",
-        "rationale": "Keyword match on Voice and audio AI gives 3/5 (mock scoring)."
+        "rationale": "You have used STT in practice and identified accent, noise, latency and disclosure concerns, but you have not yet built with text-to-speech or a voice agent."
       },
       {
         "dimension_id": "responsible",
-        "score": 2,
-        "evidence_quote": "I check whether it's allowed by our policy, and I remove names and anything personal first.",
-        "rationale": "Keyword match on Responsible use gives 2/5 (mock scoring)."
+        "score": 3,
+        "evidence_quote": "I remove names and anything personal first.",
+        "rationale": "You check policy and remove personal data before using AI and prefer no-training tools, showing regular care though not depth on consent or bias."
       },
       {
         "dimension_id": "customer_value",
-        "score": 4,
-        "evidence_quote": "I'd start with a discovery workshop to understand their users and pick one use case.",
-        "rationale": "Keyword match on Turning AI into value gives 4/5 (mock scoring)."
+        "score": 3,
+        "evidence_quote": "agree a success metric like call handling time so we know if it worked.",
+        "rationale": "Your plan includes discovery, a one-use-case pilot and a success metric, which is a sound start, but it lacks detail on scoping, impact measurement and explaining AI to non-experts."
       }
     ],
     "strengths": [
-      "Tool and model breadth",
-      "Critical evaluation"
+      "You have shipped a working Python integration that calls an LLM API, posts to Slack and handles rate limits with retries and a JSON schema.",
+      "You verify outputs in concrete ways: you run code with a quick test and cross-check facts against the docs after an invented API parameter."
     ],
     "gaps": [
-      "Voice and audio AI",
-      "Responsible use"
+      "Your customer delivery plan is high level: you name discovery, a pilot and a success metric, but not how you would scope, deliver and report impact to a strategic customer's engineers and executives.",
+      "Your prompting habits rest on a single example, so you would benefit from more systematic context, constraints and iteration for complex customer solutions.",
+      "You have not yet built with text-to-speech or a voice agent, so your voice experience is limited to transcription despite your interest in voice agents."
     ],
     "recommendations": [
       {
-        "title": "Ship a small API integration",
-        "why": "The role is hands-on Python and API integration for customers.",
-        "first_step": "Build a Python script that calls an AI API end to end and handles errors.",
+        "title": "Plan a customer pilot end to end",
+        "why": "The role owns delivery for strategic customers, so you need to scope a pilot, set measurable outcomes and explain them clearly to non-experts.",
+        "first_step": "Write a one-page pilot brief for a voice booking use case, with a scope, a success metric, a baseline and a short summary a non-technical executive could follow.",
+        "dimension_id": "customer_value",
+        "effort": "medium"
+      },
+      {
+        "title": "Build a reusable prompt pattern",
+        "why": "Tailored customer solutions depend on getting consistent, high-quality output, which needs structured context and systematic iteration rather than one good example.",
+        "first_step": "Take your ticket classifier prompt and test three variants against 20 real tickets, changing one element at a time, and record which context and constraints improve accuracy.",
+        "dimension_id": "prompting",
+        "effort": "low"
+      },
+      {
+        "title": "Add evals and latency checks to your integration",
+        "why": "Strategic customers will expect measured reliability, response time and cost, which your current build does not yet show.",
+        "first_step": "Create a small labelled set of tickets, script an accuracy check, and log the latency and token cost of each API call for one week.",
         "dimension_id": "building",
         "effort": "medium"
-      },
-      {
-        "title": "Build a reusable prompt template",
-        "why": "Strong prompts make customer solutions reliable and repeatable.",
-        "first_step": "Write a template with role, context, examples and output format; test it.",
-        "dimension_id": "prompting",
-        "effort": "medium"
-      },
-      {
-        "title": "Write a one-page data policy",
-        "why": "Enterprise customers expect clear answers on data handling.",
-        "first_step": "Draft what data you would and wouldn't send to an AI tool, and why.",
-        "dimension_id": "responsible",
-        "effort": "low"
       }
     ]
   },
   "role_fit": {
     "role_id": "elevenlabs_fde",
     "role_title": "ElevenLabs Forward Deployed Engineer",
-    "fit_percent": 89,
+    "fit_percent": 91,
     "band": "Strong fit",
     "dimensions": [
       {
-        "dimension_id": "building",
+        "dimension_id": "customer_value",
         "score": 3,
         "target": 4,
         "weight": 3,
@@ -102,16 +103,7 @@
         "priority": 2
       },
       {
-        "dimension_id": "responsible",
-        "score": 2,
-        "target": 3,
-        "weight": 1,
-        "fit": 0.6666666666666666,
-        "gap": 1,
-        "priority": 1
-      },
-      {
-        "dimension_id": "customer_value",
+        "dimension_id": "building",
         "score": 4,
         "target": 4,
         "weight": 3,
@@ -139,7 +131,16 @@
       },
       {
         "dimension_id": "breadth",
-        "score": 4,
+        "score": 3,
+        "target": 3,
+        "weight": 1,
+        "fit": 1.0,
+        "gap": 0,
+        "priority": 0
+      },
+      {
+        "dimension_id": "responsible",
+        "score": 3,
         "target": 3,
         "weight": 1,
         "fit": 1.0,
@@ -148,29 +149,32 @@
       }
     ],
     "meets": [
-      "customer_value",
+      "building",
       "verification",
       "voice_audio",
-      "breadth"
+      "breadth",
+      "responsible"
     ],
     "gaps": [
-      "building",
-      "prompting",
-      "responsible"
+      "customer_value",
+      "prompting"
     ]
   },
   "overall_score": 3.29,
   "level": "Builder",
-  "provider": "mock",
-  "model": "mock-keyword-v1",
-  "generated_at": "2026-10-15T15:24:19.278384Z",
+  "provider": "claude",
+  "model": "claude-haiku-5-5",
+  "generated_at": "2026-10-22T10:48:13.035659Z",
   "metrics": {
     "stt_ms": [],
     "tts_ms": [],
     "llm_followup_ms": null,
-    "llm_assess_ms": 0,
-    "input_tokens": 0,
-    "output_tokens": 0,
-    "est_cost_usd": 0.0
+    "llm_assess_ms": 14512,
+    "input_tokens": 875,
+    "output_tokens": 2950,
+    "cache_read_tokens": 2394,
+    "cache_write_tokens": 0,
+    "cached_response": false,
+    "est_cost_usd": 0.001586
   }
 }

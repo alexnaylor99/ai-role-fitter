@@ -110,7 +110,8 @@ async def test_assess_valid_output(sample_answers):
     assert body["output_config"]["format"]["schema"]["additionalProperties"] is False
     assert body["fallbacks"] == "default"
     assert FALLBACK_BETA in api.requests[0].headers["anthropic-beta"]
-    assert ROLE.title in body["system"]
+    assert ROLE.title in body["system"][0]["text"]
+    assert body["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert sample_answers[0].transcript in body["messages"][0]["content"]
 
 

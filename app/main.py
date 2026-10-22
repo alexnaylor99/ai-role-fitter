@@ -29,7 +29,7 @@ from app.contracts import (
 )
 from app.fit import compute_role_fit, load_role
 from app.llm import estimate_cost, get_llm
-from app.rubric import QUESTIONS, level_for, overall_score
+from app.rubric import FOLLOW_UP_QUESTIONS, QUESTIONS, level_for, overall_score
 from app.voice import get_voice
 
 log = logging.getLogger("ai_role_fitter")
@@ -38,7 +38,11 @@ MAX_AUDIO_BYTES = 25 * 1024 * 1024
 SAMPLES_DIR = ROOT / "samples"
 SESSIONS_DIR = ROOT / "sessions"
 TTS_CACHE_DIR = ROOT / "tts_cache"  # git-ignored
-FIXED_QUESTION_TEXTS = frozenset(q["text"] for q in QUESTIONS)
+# Fixed texts whose audio can be cached: the 7 questions, plus the rule-based follow-ups used
+# in local and mock modes. Claude's follow-ups are written per person and never cached.
+FIXED_QUESTION_TEXTS = frozenset(
+    [q["text"] for q in QUESTIONS] + list(FOLLOW_UP_QUESTIONS.values())
+)
 
 
 @lru_cache
@@ -129,9 +133,8 @@ async def tts(body: TTSRequest) -> Response:
     if voice is None:
         return Response(status_code=204)
 
-    # The 7 fixed questions never change, so their audio is synthesised once and reused:
-    # most of an interview's TTS credits. Follow-up questions are generated per person,
-    # so they are never cached.
+    # Fixed question texts never change, so their audio is synthesised once and reused:
+    # most of an interview's TTS credits. Personalised follow-ups are never cached.
     cache_path = None
     if body.text in FIXED_QUESTION_TEXTS:
         key = f"{voice.name}|{s.elevenlabs_voice_id}|{s.elevenlabs_tts_model}|{body.text}"
@@ -192,7 +195,10 @@ async def assess(body: AssessRequest) -> Report:
     metrics.llm_assess_ms = usage.duration_ms
     metrics.input_tokens = usage.input_tokens
     metrics.output_tokens = usage.output_tokens
-    metrics.est_cost_usd = estimate_cost(llm.model, usage.input_tokens, usage.output_tokens)
+    metrics.cache_read_tokens = usage.cache_read_tokens
+    metrics.cache_write_tokens = usage.cache_write_tokens
+    metrics.cached_response = usage.cached_response
+    metrics.est_cost_usd = estimate_cost(llm.model, usage)
 
     mean = overall_score(assessment)
     report = Report(

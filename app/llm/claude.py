@@ -168,7 +168,9 @@ class ClaudeLLM:
             response = await self._client.beta.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
-                system=system,
+                # The system prompt (rubric + role) is identical for every interview, so it
+                # is cached: later calls within 5 minutes read it at ~10% of the input price.
+                system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
                 messages=[{"role": "user", "content": user}],
                 output_config={
                     "effort": effort,
@@ -204,6 +206,10 @@ class ClaudeLLM:
 
         usage.input_tokens = (usage.input_tokens or 0) + response.usage.input_tokens
         usage.output_tokens = (usage.output_tokens or 0) + response.usage.output_tokens
+        cache_read = getattr(response.usage, "cache_read_input_tokens", None) or 0
+        cache_write = getattr(response.usage, "cache_creation_input_tokens", None) or 0
+        usage.cache_read_tokens = (usage.cache_read_tokens or 0) + cache_read
+        usage.cache_write_tokens = (usage.cache_write_tokens or 0) + cache_write
 
         if response.stop_reason == "refusal":
             raise LLMError(

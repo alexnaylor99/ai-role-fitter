@@ -78,9 +78,12 @@ class Assessment(BaseModel):
 
 
 class LLMUsage(BaseModel):
-    input_tokens: int | None = None
+    input_tokens: int | None = None  # uncached input only
     output_tokens: int | None = None
+    cache_read_tokens: int | None = None  # prompt-cache hits (billed at ~10%)
+    cache_write_tokens: int | None = None  # prompt-cache writes (billed at 125%)
     duration_ms: int = 0
+    cached_response: bool = False  # served from the app's response cache: no API call
 
 
 # --- Role profile and fit ------------------------------------------------------------
@@ -139,6 +142,9 @@ class Metrics(BaseModel):
     llm_assess_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    cache_read_tokens: int | None = None
+    cache_write_tokens: int | None = None
+    cached_response: bool = False
     est_cost_usd: float | None = None
 
 
