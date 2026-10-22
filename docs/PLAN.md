@@ -203,10 +203,10 @@ time with no code change, because prompts are loaded from files.
 | Phase 1 Foundation | ✅ 68 tests, mock mode end to end, pushed |
 | T1 Voice | ✅ merged |
 | T2 Claude | ✅ merged (live API check pending: needs key in .env) |
-| T3 Ollama | ⬜ |
+| T3 Ollama | ✅ merged (live: assess ~184s, follow-up ~86s on qwen2.5:1.5b) |
 | T4 Interview UI | ✅ merged |
 | T5 Report UI | ✅ merged |
-| T6 Rubric, prompts, eval | ⬜ |
+| T6 Rubric, prompts, eval | ✅ merged |
 | Phase 3 Integration | ⬜ |
 | T7 Docs | ⬜ |
 | T8 Security | ⬜ |
