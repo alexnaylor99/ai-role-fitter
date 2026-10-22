@@ -36,6 +36,7 @@ from app.voice import get_voice
 log = logging.getLogger("ai_role_fitter")
 
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
+SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 SAMPLES_DIR = ROOT / "samples"
 SESSIONS_DIR = ROOT / "sessions"
 TTS_CACHE_DIR = ROOT / "tts_cache"  # git-ignored
@@ -72,15 +73,23 @@ def _error(status: int, code: str, message: str) -> JSONResponse:
 
 @app.middleware("http")
 async def _local_requests_only(request: Request, call_next):
-    """Refuse requests whose Host isn't this machine.
+    """Refuse requests whose Host isn't this machine, and cross-site writes.
 
     Binding to 127.0.0.1 isn't enough on its own: with DNS rebinding a web page can point
     its own domain at 127.0.0.1 and then call this API (and spend the API keys) as if it
     were same-origin. The browser still sends the page's domain as the Host header.
     """
-    host = urlsplit(f"//{request.headers.get('host', '')}").hostname or ""
+    host_header = request.headers.get("host", "")
+    host = urlsplit(f"//{host_header}").hostname or ""
     if host not in LOOPBACK_HOSTS:
         return _error(400, "bad_host", "This app only accepts requests to 127.0.0.1.")
+    # A page on another site can still send a "simple" cross-site POST (e.g. a multipart
+    # form to /api/transcribe) without a CORS preflight. Browsers always send Origin on
+    # those, so refuse any write whose Origin isn't this app.
+    origin = request.headers.get("origin")
+    if request.method not in SAFE_METHODS and origin is not None:
+        if urlsplit(origin).netloc.lower() != host_header.lower():
+            return _error(403, "cross_origin", "Requests from other sites are not allowed.")
     return await call_next(request)
 
 

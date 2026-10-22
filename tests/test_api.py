@@ -189,3 +189,27 @@ def test_dns_rebinding_host_refused(client, host):
     res = client.get("/api/health", headers={"host": host})
     assert res.status_code == 400
     assert res.json()["error"]["code"] == "bad_host"
+
+
+def test_cross_site_write_refused(client, monkeypatch):
+    monkeypatch.setenv("VOICE_PROVIDER", "mock")
+    get_settings.cache_clear()
+    res = client.post(
+        "/api/transcribe",
+        headers={"origin": "https://attacker.example"},
+        files={"audio": ("a.webm", b"x", "audio/webm")},
+    )
+    assert res.status_code == 403
+    assert res.json()["error"]["code"] == "cross_origin"
+    assert (
+        client.post("/api/tts", headers={"origin": "null"}, json={"text": "hi"}).status_code == 403
+    )
+
+
+def test_same_origin_write_allowed(client, sample_answers):
+    res = client.post(
+        "/api/follow-up",
+        headers={"origin": "http://127.0.0.1:8000"},
+        json={"answers": _answers(sample_answers)[:7]},
+    )
+    assert res.status_code == 200
