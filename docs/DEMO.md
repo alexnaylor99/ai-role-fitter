@@ -5,14 +5,12 @@ everything that can go wrong. The 5-minute script itself is in [SPEC §15](SPEC.
 
 ## The plan in one line
 
-**Run the interview live in Claude mode; show local (private) mode from a recording,** then
+**Run the interview live in Claude mode; describe local (private) mode from the eval results,** then
 explain the trade-off. On a 2-core 2017 laptop the local model takes 2–4 minutes per report,
 and longer if anything else is running, which is too slow and too variable to wait for live.
 
 ## Before the interview (day before)
 
-- [ ] **Record local mode** (SPEC Phase 3.6): close everything else, run one full interview in
-      Local mode with `?demo=1`, and screen-record it (⌘⇧5). Keep it short: trim the waiting.
 - [ ] **Warm the question audio cache:** do one real-voice run so the 7 questions are saved in
       `tts_cache/`. After that, live runs only spend ElevenLabs credits on the follow-up
       question and on transcribing your answers.
@@ -28,7 +26,7 @@ and longer if anything else is running, which is too slow and too variable to wa
 - [ ] Plug in the charger (macOS slows the CPU on battery).
 - [ ] `make dev`, open http://127.0.0.1:8000. The status strip should show Claude, Voice and
       Local model as ready.
-- [ ] Have the recording and the repo open in other tabs.
+- [ ] Have the repo and the README's eval table open in other tabs.
 
 ## During the demo
 
@@ -37,7 +35,7 @@ and longer if anything else is running, which is too slow and too variable to wa
 | Answer 2–3 questions by voice | Claude + ElevenLabs | Type the answer instead (always available) |
 | Skip ahead with pre-filled answers | `?demo=1` | — |
 | Show the report | Claude (~10–20 s, ~$0.002) | *View sample report* (no network needed) |
-| Explain privacy mode | Play the local-mode recording | — |
+| Explain privacy mode | README's eval and latency tables | — |
 | Show the code | `app/roles/elevenlabs_fde.json`, `app/fit.py`, eval output | — |
 
 Running the same answers twice gives an instant result at no cost (the in-memory response

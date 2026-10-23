@@ -151,7 +151,7 @@ time with no code change, because prompts are loaded from files.
 | 3.3 | Run `make eval` on Claude and Ollama; tune the prompts in `app/prompts/` until the personas land in range. |
 | 3.4 | Calibrate the latency estimate and cost calculation; confirm the SPEC §7 targets. |
 | 3.5 | Generate the real `samples/sample_report.json` from a persona run. |
-| 3.6 | Record a local-mode run (screen recording) as a demo backup. |
+| 3.6 | ~~Record a local-mode run as a demo backup.~~ Dropped: local mode is presented from the eval results instead. |
 
 ## Wave B — Parallel handoffs 🤝
 
